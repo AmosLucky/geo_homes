@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "959312397545",
+    "project_id": "geo-homes",
+    "storage_bucket": "geo-homes.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:959312397545:android:26aa1c6daa1ea52ce45c78",
+        "android_client_info": {
+          "package_name": "geohomesgroup.com"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "959312397545-7qe9rufh4oefp5cr3ocfb25ljcna7g40.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcFWKm_0v_UDtwCO1S8vIDGuGw_Lr1S8o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "959312397545-7qe9rufh4oefp5cr3ocfb25ljcna7g40.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
