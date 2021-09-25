@@ -113,8 +113,6 @@ class _SearchFilterState extends State<SearchFilter> {
                         ),
                       ],
                     ),
-
-                    
                     Container(
                       decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey),
@@ -152,7 +150,6 @@ class _SearchFilterState extends State<SearchFilter> {
                         },
                       ),
                     ),
-             
                     Stack(
                       children: <Widget>[
                         Container(
@@ -243,11 +240,12 @@ class _SearchFilterState extends State<SearchFilter> {
                             keyword = widget.keyword;
                           }
                           var stateValue;
-                             if(state == "All"){
-                               stateValue = null;
-                             }else{
-                              stateValue =  state.toLowerCase().replaceAll(" ", "-");
-                             }
+                          if (state == "All") {
+                            stateValue = null;
+                          } else {
+                            stateValue =
+                                state.toLowerCase().replaceAll(" ", "-");
+                          }
 
                           // print(stateValue +
                           //     " " +
@@ -265,9 +263,9 @@ class _SearchFilterState extends State<SearchFilter> {
                                     highRange: _upperValue.toString(),
                                     sort: sortValue,
                                   ));
-                            Navigator.pushReplacement(context, route);
+                          Navigator.pushReplacement(context, route);
 
-                           //Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext()));
+                          //Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext()));
                         },
                       ),
                     )
@@ -320,60 +318,60 @@ class _SearchFilterState extends State<SearchFilter> {
     "Zamfara"
   ];
 }
-       // Container(
-                    //   margin: EdgeInsets.only(top: 23),
-                    //   child: Row(
-                    //     children: [
-                    //       /////////////////////////////////////////////////////////////////////////////////
-                    //       Expanded(
-                    //         child: Container(
-                    //           //padding: const EdgeInsets.all(3.0),
-                    //           decoration: BoxDecoration(
-                    //             border: Border.all(color: Colors.grey),
-                    //             borderRadius: BorderRadius.all(Radius.circular(
-                    //                     5) //                 <--- border radius here
-                    //                 ),
-                    //           ),
+// Container(
+//   margin: EdgeInsets.only(top: 23),
+//   child: Row(
+//     children: [
+//       /////////////////////////////////////////////////////////////////////////////////
+//       Expanded(
+//         child: Container(
+//           //padding: const EdgeInsets.all(3.0),
+//           decoration: BoxDecoration(
+//             border: Border.all(color: Colors.grey),
+//             borderRadius: BorderRadius.all(Radius.circular(
+//                     5) //                 <--- border radius here
+//                 ),
+//           ),
 
-                    //           child: DropdownButton<String>(
-                    //             isExpanded: true,
-                    //             hint: Text(" Sort by"),
-                    //             value: sort,
-                    //             icon: Icon(Icons.arrow_drop_down),
-                    //             iconSize: 24,
-                    //             elevation: 16,
-                    //             style:
-                    //                 TextStyle(color: Colors.red, fontSize: 18),
-                    //             underline: Container(),
-                    //             onChanged: (String data) {
-                    //               setState(() {
-                    //                 sort = data;
-                    //                 sortValue = listOfSortsValues[
-                    //                     listOfSorts.indexOf(sort)];
+//           child: DropdownButton<String>(
+//             isExpanded: true,
+//             hint: Text(" Sort by"),
+//             value: sort,
+//             icon: Icon(Icons.arrow_drop_down),
+//             iconSize: 24,
+//             elevation: 16,
+//             style:
+//                 TextStyle(color: Colors.red, fontSize: 18),
+//             underline: Container(),
+//             onChanged: (String data) {
+//               setState(() {
+//                 sort = data;
+//                 sortValue = listOfSortsValues[
+//                     listOfSorts.indexOf(sort)];
 
-                    //                 print(listOfSorts.indexOf(data));
-                    //                 //  print(dropdownValue);
-                    //               });
-                    //             },
-                    //             items: listOfSorts
-                    //                 .map<DropdownMenuItem<String>>(
-                    //                     (String value) {
-                    //               return DropdownMenuItem<String>(
-                    //                 value: value,
-                    //                 child: Text(
-                    //                   " " + value,
-                    //                   style: TextStyle(color: Colors.black),
-                    //                 ),
-                    //               );
-                    //             }).toList(),
-                    //           ),
+//                 print(listOfSorts.indexOf(data));
+//                 //  print(dropdownValue);
+//               });
+//             },
+//             items: listOfSorts
+//                 .map<DropdownMenuItem<String>>(
+//                     (String value) {
+//               return DropdownMenuItem<String>(
+//                 value: value,
+//                 child: Text(
+//                   " " + value,
+//                   style: TextStyle(color: Colors.black),
+//                 ),
+//               );
+//             }).toList(),
+//           ),
 
-                    //           // Text(dropdownValue,
-                    //           // style: TextStyle
-                    //           //     (fontSize: 22,
-                    //           //     color: Colors.black)),
-                    //         ),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
+//           // Text(dropdownValue,
+//           // style: TextStyle
+//           //     (fontSize: 22,
+//           //     color: Colors.black)),
+//         ),
+//       ),
+//     ],
+//   ),
+// ),

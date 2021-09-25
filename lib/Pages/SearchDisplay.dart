@@ -5,6 +5,7 @@ import 'package:Geo_home/Pages/SearchFilter.dart';
 import 'package:Geo_home/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchDisplay extends StatefulWidget {
   var keyword;
@@ -12,7 +13,14 @@ class SearchDisplay extends StatefulWidget {
   var lowRange;
   var highRange;
   var sort;
-  SearchDisplay({this.keyword, this.state, this.lowRange,this.highRange, this.sort});
+  var type;
+  SearchDisplay(
+      {this.keyword,
+      this.state,
+      this.lowRange,
+      this.highRange,
+      this.sort,
+      this.type});
 
   @override
   _SearchDisplayState createState() => _SearchDisplayState();
@@ -27,15 +35,15 @@ class _SearchDisplayState extends State<SearchDisplay> {
 
   @override
   void initState() {
+    getSearchType();
     keyword = widget.keyword;
     state = widget.state;
     lowRange = widget.lowRange;
     highRange = widget.highRange;
     sort = widget.sort;
-     //print("llll"+widget.state)  ;
-     // print("llll"+widget.lowRange)  ;
-      /// print("llll"+widget.highRange)  ;
-
+    //print("llll"+widget.state)  ;
+    // print("llll"+widget.lowRange)  ;
+    /// print("llll"+widget.highRange)  ;
 
     searchCtr.text = widget.keyword;
 
@@ -43,58 +51,65 @@ class _SearchDisplayState extends State<SearchDisplay> {
     super.initState();
   }
 
+  var searchType;
+  SharedPreferences _sharePreference;
+  getSearchType() async {
+    if (widget.type == null) {
+      widget.type = "properties";
+    }
+    _sharePreference = await SharedPreferences.getInstance();
+    searchType = _sharePreference.getString("searchType");
+    print(searchType);
+  }
+
   Future fetchProperties() async {
     String url = "http://geohomesgroup.com/admin/process/list?" +
-        "pageType=m-properties&mobile=1&user_id=1&combine=and&search=" +
-        keyword+"&condition=";
-        if(state != null && lowRange != null && highRange != null){
-          url = url+ "state,"+state+  "|price1," +
-        lowRange +
-        ",greater|price1," +
-        highRange+ ",less";
+        "pageType=m-" +
+        widget.type +
+        "&mobile=1&user_id=1&condition=status,1&combine=and&search=" +
+        keyword +
+        "&condition=";
+    if (state != null && lowRange != null && highRange != null) {
+      url = url +
+          "state," +
+          state +
+          "|price1," +
+          lowRange +
+          ",greater|price1," +
+          highRange +
+          ",less";
+    } else if (lowRange != null && highRange != null) {
+      url =
+          url + "price1," + lowRange + ",greater|price1," + highRange + ",less";
+    } else if (state != null) {
+      url = url + "state," + state;
+    }
 
-        }else if(lowRange != null && highRange != null){
+    print(url);
 
-          url =  url + "price1," +
-        lowRange +
-        ",greater|price1," +
-        highRange+ ",less";
+    // if(state != null){
+    //  url = url+ "state,"+state;
 
+    // }
 
-        }else if (state != null){
-           url = url+ "state,"+state;
+    // if(lowRange != null && highRange != null){
+    // url =  url + "|price1," +
+    // lowRange +
+    // ",greater|price1," +
+    // highRange+ ",less|";
 
-        }
+    // }
 
+    //  if(sort != ""){
 
-        // if(state != null){
-        //  url = url+ "state,"+state;
+    // }
 
-
-        // }
-        
-        // if(lowRange != null && highRange != null){
-        // url =  url + "|price1," +
-        // lowRange +
-        // ",greater|price1," +
-        // highRange+ ",less|";
-
-        // } 
-        
-        //  if(sort != ""){
-          
-
-        // }
-
-        
-        
-     
     setState(() {});
-    print("===============" + url);
+    //print("===============" + url);
 
     var response = await http.get(url);
     if (response.statusCode == 200) {
- // print(response.body);
+      // print(response.body);
 
       return jsonDecode(response.body);
     }
@@ -164,6 +179,7 @@ class _SearchDisplayState extends State<SearchDisplay> {
                                         lowRange: null,
                                         highRange: null,
                                         sort: null,
+                                        type: widget.type,
                                       ));
                               Navigator.pushReplacement(context, route);
 
@@ -184,8 +200,10 @@ class _SearchDisplayState extends State<SearchDisplay> {
                     color: mainColor,
                   ),
                   onTap: () {
-                    var route =  MaterialPageRoute(
-                        builder: (BuildContext) => SearchFilter(keyword: keyword,));
+                    var route = MaterialPageRoute(
+                        builder: (BuildContext) => SearchFilter(
+                              keyword: keyword,
+                            ));
                     Navigator.of(context).pushReplacement(route);
                   },
                 ),
@@ -226,12 +244,13 @@ class _SearchDisplayState extends State<SearchDisplay> {
                     if (snapshot.data['total'] == 0) {
                       return Container(
                         height: 300,
-                        margin: EdgeInsets.only(top: 100,left: 10,right: 10),
+                        margin: EdgeInsets.only(top: 100, left: 10, right: 10),
                         alignment: Alignment.center,
                         child: Container(
                           alignment: Alignment.center,
                           child: FittedBox(
-                            child: Image.asset("assets/images/noresult.gif")),),
+                              child: Image.asset("assets/images/noresult.gif")),
+                        ),
                       );
                     }
 

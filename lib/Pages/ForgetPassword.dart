@@ -11,16 +11,18 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:bottom_loader/bottom_loader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'ForgetPassword.dart';
 import 'UserModel.dart';
+import 'Login.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 
-class Login extends StatefulWidget {
+
+class ForgetPassword extends StatefulWidget {
   @override
-  _LoginState createState() => _LoginState();
+  _ForgetPasswordState createState() => _ForgetPasswordState();
 }
 
-class _LoginState extends State<Login> {
+class _ForgetPasswordState extends State<ForgetPassword> {
   
  // UserModel userModel = UserModel();
    BottomLoader bl;
@@ -181,32 +183,32 @@ login(email,password) async {
                               },
                       ),
 
-                      SizedBox(height:20),
+                     // SizedBox(height:20),
 
-                       TextFormField(
-                          obscureText: isHidden? true : false,
-                        decoration: InputDecoration(
-                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          labelText: "Password",
-                          prefixIcon: InkWell(
-                                        onTap: (){
-                                          passwordSwitch();
-                                        },
-                                        child: Icon(
-                                          isHidden? Icons.remove_red_eye : Icons.visibility_off,
-                                            ),
-                                      ),
-                        ),
-                        onSaved: (value){
-                          _password = value;
-                        },
-                        validator: (value){
-                          if(value.isEmpty){
-                            return "Password is empty";
-                          }
+                      //  TextFormField(
+                      //     obscureText: isHidden? true : false,
+                      //   decoration: InputDecoration(
+                      //      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      //     labelText: "Password",
+                      //     prefixIcon: InkWell(
+                      //                   onTap: (){
+                      //                     passwordSwitch();
+                      //                   },
+                      //                   child: Icon(
+                      //                     isHidden? Icons.remove_red_eye : Icons.visibility_off,
+                      //                       ),
+                      //                 ),
+                      //   ),
+                      //   onSaved: (value){
+                      //     _password = value;
+                      //   },
+                      //   validator: (value){
+                      //     if(value.isEmpty){
+                      //       return "Password is empty";
+                      //     }
 
-                        },
-                      ),
+                      //   },
+                      // ),
                     
 
                      
@@ -220,11 +222,12 @@ login(email,password) async {
                            shape: StadiumBorder(),
                         textColor: whiteColor,
                         color: mainColor,
-                        child: Text("Login"),
+                        child: Text("Recover"),
                         onPressed: () async {
                          // print(await sharedPreferences.getString("email"));
+                         Fluttertoast.showToast(msg: "Failed To Send");
                          
-                          validate();
+                         // validate();
                         }
                         ))
                    ],),
@@ -254,11 +257,11 @@ login(email,password) async {
                            mainAxisAlignment: MainAxisAlignment.center,
                            children: [
                            //Text("Forget Password "),
-                           Text("Forget Password",style: TextStyle(color: mainColor,fontWeight: FontWeight.bold),),
+                           Text("Login",style: TextStyle(color: mainColor,fontWeight: FontWeight.bold),),
 
                          ],),
                          onPressed: (){
-                           Navigator.push(context, MaterialPageRoute(builder: (BuildContext)=>ForgetPassword()));
+                           Navigator.push(context, MaterialPageRoute(builder: (BuildContext)=>Login()));
                          },
                          ))
                    ],)

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:Geo_home/Pages/Login.dart';
 import 'package:Geo_home/Pages/UserModel.dart';
 import 'package:Geo_home/constants.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import 'package:http/http.dart' as http;
 import "package:async/async.dart";
 
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -17,6 +19,7 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  SharedPreferences _sharedPreferences;
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   TextEditingController nameCtr = TextEditingController();
@@ -72,14 +75,27 @@ class _ProfileState extends State<Profile> {
     });
     //}
   }
+
   //////////////////////////////
-  loadDetails()async{
-    var url = "http://geohomesgroup.com/admin/process/loadform?pageType=users&mobile=1&user_id=1&id="+userModel.getUserId();
+  loadDetails() async {
+    var url = "http://geohomesgroup.com/admin/process/loadform?pageType" +
+        "=members_&mobile=1&user_id=1&id=" +
+        userModel.getUserId();
+
     var response = await http.get(url);
-    if(response.statusCode == 200){
+    if (response.statusCode == 200) {
       print(userModel.getUserId());
-      print("=="+response.body);
+
+      print("==" + response.body);
     }
+  }
+
+  logOut(BuildContext context) async {
+    _sharedPreferences = await SharedPreferences.getInstance();
+    _sharedPreferences.clear();
+    var loginRoute = MaterialPageRoute(builder: (BuildContext) => Login());
+
+    Navigator.pushReplacement(context, loginRoute);
   }
 
   @override
@@ -164,7 +180,11 @@ class _ProfileState extends State<Profile> {
                     maxLine: 4),
                 SizedBox(height: 20),
                 Container(
-                    alignment: Alignment.center, child: Text(_loginResponse,style: TextStyle(color: Colors.red),)),
+                    alignment: Alignment.center,
+                    child: Text(
+                      _loginResponse,
+                      style: TextStyle(color: Colors.red),
+                    )),
                 Row(
                   children: [
                     Expanded(
@@ -223,11 +243,57 @@ class _ProfileState extends State<Profile> {
                     )
                   ],
                 ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FlatButton(
+                        child: Text("LogOut"),
+                        onPressed: () {
+                          showAlertDialog(context);
+                        },
+                      ),
+                    )
+                  ],
+                )
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  showAlertDialog(BuildContext context) {
+    // set up the buttons
+    Widget cancelButton = FlatButton(
+      child: Text("Cancel"),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+    Widget continueButton = FlatButton(
+      child: Text("Continue"),
+      onPressed: () {
+        logOut(context);
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Alert!"),
+      content: Text("You are about to LogOut from this app"),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 

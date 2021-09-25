@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_countdown_timer/countdown.dart';
+import 'package:pinput/pin_put/pin_put.dart';
 
 class PhoneVerification extends StatefulWidget {
   @override
@@ -64,6 +65,9 @@ class _PhoneVerificationState extends State<PhoneVerification> {
   initialization() async {
     _firebaseAuth = await FirebaseAuth.instance;
   }
+  final _pinPutController = TextEditingController();
+  final _pinPutFocusNode = FocusNode();
+  final _pageController = PageController();
 
   @override
   void initState() {
@@ -89,31 +93,12 @@ class _PhoneVerificationState extends State<PhoneVerification> {
 
     return WillPopScope(
       onWillPop: () {
-        print("back pressed");
-        codeSent
-            ? _scaffoldKey.currentState.showSnackBar(SnackBar(
-                content: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        "Do you want to go back ",
-                        style: TextStyle(),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    RaisedButton(
-                      color: mainColor,
-                      textColor: Colors.white,
-                      child: Text("Back"),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    )
-                  ],
-                ),
-                backgroundColor: Colors.blueGrey,
-              ))
-            : Navigator.pop(context);
+       // print("back pressed");
+       codeSent = false;
+       msg = "";
+       setState(() {
+         
+       });
       },
       child: Scaffold(
           key: _scaffoldKey,
@@ -125,7 +110,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                 child: Column(
                   children: [
                     Container(
-                      child: Image.asset("assets/images/logo.jpg", width: 300),
+                      child: Image.asset(appLogo, width: 300),
                     ),
                     codeSent ? CodeVerification() : PhoneNumberVerification()
                   ],
@@ -520,15 +505,15 @@ class _PhoneVerificationState extends State<PhoneVerification> {
     }
   }
 
-  validate2() async {
+  validate2(String pin) async {
     if (_formKey2.currentState.validate()) {
       _formKey2.currentState.save();
 
       //var smsCode = codeOne+codeTwo+codeThree+codeFour+codeFive+codeSix;
-      print(codeOne);
+      print(pin);
       print(myverificationId);
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
-          verificationId: myverificationId, smsCode: codeOne);
+          verificationId: myverificationId, smsCode: pin);
 
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithCredential(credential)
@@ -572,25 +557,26 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                   ///////////////CODE 1//////////
                   Expanded(
                     child: Container(
-                      margin: EdgeInsets.only(left: 50, right: 50),
-                      child: TextFormField(
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 30),
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.zero,
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                        ),
-                        validator: (value) {
-                          if (value.trim().isEmpty || value.trim().length > 6) {
-                            return "Invalid code";
-                          }
-                        },
-                        onSaved: (value) {
-                          codeOne = value;
-                        },
-                      ),
+                      margin: EdgeInsets.only(left: 10, right: 10),
+                      child: animatingBorders(),
+                      // child: TextFormField(
+                      //   textAlign: TextAlign.center,
+                      //   style: TextStyle(fontSize: 30),
+                      //   keyboardType: TextInputType.number,
+                      //   decoration: InputDecoration(
+                      //     contentPadding: EdgeInsets.zero,
+                      //     border: OutlineInputBorder(
+                      //         borderRadius: BorderRadius.circular(12)),
+                      //   ),
+                      //   validator: (value) {
+                      //     if (value.trim().isEmpty || value.trim().length > 6) {
+                      //       return "Invalid code";
+                      //     }
+                      //   },
+                      //   onSaved: (value) {
+                      //     codeOne = value;
+                      //   },
+                      // ),
                     ),
                   ),
                 ]),
@@ -740,10 +726,11 @@ class _PhoneVerificationState extends State<PhoneVerification> {
 
                 isToResend
                     ? RaisedButton(
+                      color: mainColor,
                         elevation: 5.0,
-                        child: Text("Resend Code"),
+                        child: Text("Resend Code",style: TextStyle(color: Colors.white)),
                         onPressed: () {
-                          verifyNumber(_phoneNumber);
+                          verifyNumber(dropdownValue + _phoneNumber);
                           startTimer();
                           setState(() {
                             msg = "";
@@ -761,21 +748,21 @@ class _PhoneVerificationState extends State<PhoneVerification> {
 
                 SizedBox(height: 30),
 
-                Row(
-                  children: [
-                    Expanded(
-                        child: MaterialButton(
-                            height: 50,
-                            shape: StadiumBorder(),
-                            textColor: whiteColor,
-                            color: mainColor,
-                            child: Text("Verify"),
-                            onPressed: () {
-                              validate2();
-                            }))
-                  ],
-                ),
-                SizedBox(height: 30),
+                // Row(
+                //   children: [
+                //     Expanded(
+                //         child: MaterialButton(
+                //             height: 50,
+                //             shape: StadiumBorder(),
+                //             textColor: whiteColor,
+                //             color: mainColor,
+                //             child: Text("Verify"),
+                //             onPressed: () {
+                //               validate2();
+                //             }))
+                //   ],
+                // ),
+                // SizedBox(height: 30),
 
                 Row(
                   children: [
@@ -806,6 +793,47 @@ class _PhoneVerificationState extends State<PhoneVerification> {
           ),
         )
       ],
+    );
+  }
+
+   Widget animatingBorders() {
+    final BoxDecoration pinPutDecoration = BoxDecoration(
+      border: Border.all(color: Colors.deepPurpleAccent),
+      borderRadius: BorderRadius.circular(15.0),
+    );
+    return PinPut(
+      fieldsCount: 6,
+      eachFieldHeight: 40.0,
+      eachFieldWidth: 29,
+      withCursor: true,
+    onSubmit: (String pin) {
+      codeOne = pin;
+      print(pin);
+      validate2(pin);
+      setState(() {
+        
+      });
+    },
+    onChanged: (String pin){
+      if(pin.length < 6){
+        setState(() {
+          msg = "";
+        });
+      }
+
+    },
+      focusNode: _pinPutFocusNode,
+      controller: _pinPutController,
+      submittedFieldDecoration: pinPutDecoration.copyWith(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      selectedFieldDecoration: pinPutDecoration,
+      followingFieldDecoration: pinPutDecoration.copyWith(
+        borderRadius: BorderRadius.circular(5.0),
+        border: Border.all(
+          color: Colors.deepPurpleAccent.withOpacity(.5),
+        ),
+      ),
     );
   }
 

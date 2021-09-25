@@ -15,16 +15,16 @@ import 'package:http/http.dart' as http;
 
 import 'UserModel.dart';
 
-class SubmitProperty extends StatefulWidget {
+class SubmitProduct extends StatefulWidget {
   Map<String, dynamic> productDetails;
   List images;
   bool isEdit = false;
-  SubmitProperty({this.productDetails, this.images, this.isEdit});
+  SubmitProduct({this.productDetails, this.images, this.isEdit});
   @override
-  _SubmitPropertyState createState() => _SubmitPropertyState();
+  _SubmitProductState createState() => _SubmitProductState();
 }
 
-class _SubmitPropertyState extends State<SubmitProperty> {
+class _SubmitProductState extends State<SubmitProduct> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   var _tagKey = GlobalKey<FormState>();
   var mainTags = {};
@@ -148,7 +148,7 @@ class _SubmitPropertyState extends State<SubmitProperty> {
         automaticallyImplyLeading: false,
         backgroundColor: mainColor,
         centerTitle: true,
-        title: Text("Submit Property"),
+        title: Text("Submit Product"),
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -180,9 +180,9 @@ class _SubmitPropertyState extends State<SubmitProperty> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          headText("Property Details"),
+                          headText("Product Details"),
                           textField(
-                              labelText: "Title of Property",
+                              labelText: "Title of Product",
                               errorText: "Title is empty",
                               key: "description",
                               controller: _controller),
@@ -190,19 +190,28 @@ class _SubmitPropertyState extends State<SubmitProperty> {
 
                           selectField1(
                               items: [
-                                "Residential buildings",
-                                "Commercial buildings",
-                                "Lands",
-                                "Estates"
+                                "Wood",
+                                "Tiles",
+                                "Stones",
+                                "POP And Accessories",
+                                "Paint",
+                                "Metal",
+                                "Granite",
+                                "Glass",
+                                "Electrical Material",
+                                "Concrete",
+                                "Cement",
+                                "Briks and Tiles",
+                                "Blocks",
                               ],
-                              hint: "Property Type",
+                              hint: "Product Type",
                               widgetNumber: 1,
                               key: "pcategories"),
-                          selectField2(
-                              items: ["For Rent", "For Sale"],
-                              hint: "Select Lease Type",
-                              widgetNumber: 1,
-                              key: "unit"),
+                          // selectField2(
+                          //     items: ["For Rent", "For Sale"],
+                          //     hint: "Select Lease Type",
+                          //     widgetNumber: 1,
+                          //     key: "unit"),
                           selectField3(
                               items: listOfStates,
                               hint: "Select State",
@@ -218,9 +227,9 @@ class _SubmitPropertyState extends State<SubmitProperty> {
 
                           //////////////
                           textField(
-                              labelText: "Location Address",
-                              errorText: "Location is empty",
-                              key: "warehouse"),
+                              labelText: "Unit",
+                              errorText: "Unit is empty",
+                              key: "unit"),
 
                           //////////////
                           textField(

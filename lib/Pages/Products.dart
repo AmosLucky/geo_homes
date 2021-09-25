@@ -23,15 +23,16 @@ import 'SubmitProperty.dart';
 //   37469671
 //   Odo Ejike Odo
 
-class HomePage extends StatefulWidget {
+class Products extends StatefulWidget {
   String url;
   String jsonKey;
-  HomePage({this.url, this.jsonKey});
+  String type;
+  Products({this.url, this.jsonKey, this.type});
   @override
-  _HomePageState createState() => _HomePageState();
+  _ProductsState createState() => _ProductsState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _ProductsState extends State<Products> {
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   SharedPreferences sharedPreferences;
   bool isSearch = false;
@@ -71,12 +72,11 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  SharedPreferences _sharePreference;
-
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
+    SharedPreferences _sharePreference;
     // return WillPopScope(
     //   onWillPop: () {
     //     print("back pressed");
@@ -192,11 +192,10 @@ class _HomePageState extends State<HomePage> {
                                   _sharePreference =
                                       await SharedPreferences.getInstance();
                                   _sharePreference.setString(
-                                      "searchType", "properties");
+                                      "searchType", widget.type);
+
                                   Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (BuildContext) => SearchPage(
-                                            type: "properties",
-                                          )));
+                                      builder: (BuildContext) => SearchPage()));
                                 },
                                 child: Row(
                                   children: [
@@ -378,7 +377,7 @@ class _HomePageState extends State<HomePage> {
             onTap: () {
               print("Home");
               Navigator.of(context).push(
-                  MaterialPageRoute(builder: (BuildContext) => HomePage()));
+                  MaterialPageRoute(builder: (BuildContext) => Products()));
               setState(() {
                 selectedButtomNavIndex = 0;
               });
@@ -487,20 +486,19 @@ class _ListOfPropertiesState extends State<ListOfProperties> {
             final List images = json.decode(widget.list['row'][i]['c'][6]);
             // print("============"+t[0].toString());
             var row = widget.list['row'];
-            var id;
-            var title;
-            var price;
-            var category;
-            var company;
-            var status;
-            var postDate;
-            var type;
-            var location;
-            var companyName;
-            var phoneNumber;
-            var priceWithCommer;
-            var type2;
-
+            var id,
+                type2,
+                title,
+                price,
+                category,
+                company,
+                status,
+                postDate,
+                type,
+                location,
+                companyName,
+                phoneNumber,
+                priceWithCommer;
             row = widget.list['row'];
             id = widget.list['row'][i]['i'];
             // if(id == "162"){
@@ -539,6 +537,7 @@ class _ListOfPropertiesState extends State<ListOfProperties> {
             } else {
               type2 = type;
             }
+            title = title.replaceAll(title[0], title[0].toUpperCase());
 
             // print( "${numberFormat.format(price)}");
             // var name = "amos";
@@ -570,325 +569,197 @@ class _ListOfPropertiesState extends State<ListOfProperties> {
               child: Card(
                 //color: Colors.redAccent,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
+                  borderRadius: BorderRadius.circular(5.0),
                 ),
-                elevation: 5,
+                elevation: 2,
                 child: Container(
                   width: MediaQuery.of(context).size.width,
                   // height: 480,
+
                   child: Column(
                     children: [
-                      Stack(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            width: width,
-                            height: hieght / 1.9,
-                            // decoration: BoxDecoration(
-                            //   borderRadius: BorderRadius.only(
-                            //       topRight: Radius.circular(15.0),
-                            //       topLeft: Radius.circular(15.0)),
-                            // image: DecorationImage(
-                            //   fit: BoxFit.cover,
-                            // image: new CachedNetworkImageProvider(
-                            //   //////////////IMAGE
-                            //   images[0]['src'],
+                          Expanded(
+                            //  alignment: Alignment.centerLeft,
 
-                            // ),
-                            //),
-                            //  ),
-                            child: CachedNetworkImage(
-                              fit: BoxFit.cover,
-                              //////////////IMAGE///////////////////
-                              imageUrl: images[0]['src'],
-                              progressIndicatorBuilder:
-                                  (context, url, downloadProgress) => SizedBox(
-                                height: 100.0,
-                                width: 100.0,
-                                child: Center(
-                                  child: Stack(
-                                    children: [
-                                      //  Center(
-                                      //    child: CircularProgressIndicator(
-                                      //      backgroundColor: Colors.greenAccent,
-                                      //     strokeWidth: 1.0,
-                                      //     value: downloadProgress.progress),
-                                      //  ),
-                                      Container(
-                                        width: 400,
-                                        height: 600,
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey[350],
-                                          borderRadius: BorderRadius.only(
-                                              topRight: Radius.circular(15.0),
-                                              topLeft: Radius.circular(15.0)),
-                                        ),
-                                        child: Center(
-                                          child: CircularProgressIndicator(
-                                              backgroundColor:
-                                                  Colors.greenAccent,
-                                              strokeWidth: 1.0,
-                                              value: downloadProgress.progress),
-                                        ),
-                                      ),
-                                      Image.asset(
-                                        "assets/images/geo.png",
-                                        width: 70,
-                                      )
+                            ///title
 
-                                      //  ),
-                                    ],
+                            // padding: EdgeInsets.only(
+                            //  left: 1, right: 1, top: 1),
+
+                            child: Container(
+                              width: 150,
+                              height: hieght / 7,
+                              child: CachedNetworkImage(
+                                //fit: BoxFit.cover,
+                                //////////////IMAGE///////////////////
+                                imageUrl: images[0]['src'],
+                                progressIndicatorBuilder:
+                                    (context, url, downloadProgress) =>
+                                        SizedBox(
+                                  height: 100.0,
+                                  width: 100.0,
+                                  child: Center(
+                                    child: Stack(
+                                      children: [
+                                        //  Center(
+                                        //    child: CircularProgressIndicator(
+                                        //      backgroundColor: Colors.greenAccent,
+                                        //     strokeWidth: 1.0,
+                                        //     value: downloadProgress.progress),
+                                        //  ),
+                                        Container(
+                                          width: 200,
+                                          height: 200,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[350],
+                                            borderRadius: BorderRadius.only(
+                                                //  topRight: Radius.circular(15.0),
+                                                topLeft: Radius.circular(5.0)),
+                                          ),
+                                          child: Center(
+                                            child: CircularProgressIndicator(
+                                                backgroundColor:
+                                                    Colors.greenAccent,
+                                                strokeWidth: 1.0,
+                                                value:
+                                                    downloadProgress.progress),
+                                          ),
+                                        ),
+                                        Image.asset(
+                                          "assets/images/geo.png",
+                                          width: 70,
+                                        )
+
+                                        //  ),
+                                      ],
+                                    ),
                                   ),
                                 ),
+                                imageBuilder: (context, imageProvider) =>
+                                    Container(
+                                        decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                      //topRight: Radius.circular(15.0),
+                                      topLeft: Radius.circular(5.0)),
+                                  image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: imageProvider,
+                                  ),
+                                )),
+                                errorWidget: (context, url, error) =>
+                                    Icon(Icons.error),
                               ),
-                              imageBuilder: (context, imageProvider) =>
-                                  Container(
-                                      decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(15.0),
-                                    topLeft: Radius.circular(15.0)),
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: imageProvider,
+                            ),
+
+                            ////////////TITLE
+                          ),
+                          Expanded(
+                              child: Container(
+                            alignment: Alignment.topLeft,
+                            margin:
+                                EdgeInsets.only(top: 10, left: 10, right: 5),
+                            child: Column(
+                              children: [
+                                Container(
+                                  alignment: Alignment.topLeft,
+                                  child: Text(
+                                    title,
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                              )),
-                              errorWidget: (context, url, error) =>
-                                  Icon(Icons.error),
+                                Container(
+                                  margin: EdgeInsets.only(top: 10),
+                                  alignment: Alignment.topLeft,
+                                  child: Text(
+                                    category,
+                                  ),
+                                ),
+                                price != ""
+                                    ? Container(
+                                        margin: EdgeInsets.only(top: 10),
+                                        alignment: Alignment.topLeft,
+                                        child: Text(
+                                          "₦" + price,
+                                          style: TextStyle(color: mainColor),
+                                        ),
+                                      )
+                                    : Container(),
+                              ],
                             ),
-                          ),
-
-                          Container(
-                            //decoration: BoxDecoration(borderRadius: BorderRadius.only(bottomLeft:Radius.circular(10))),
-                            // padding: EdgeInsets.only(right: 10),
-                            height: 20,
-                            alignment: Alignment.topRight,
-                            child: FlatButton(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(10),
-                                    bottomLeft: Radius.circular(15)),
-                              ),
-                              ///////////////TYPE///////
-                              child: Text(type2),
-                              color: mainColor,
-                              textColor: Colors.white,
-                              onPressed: () {},
-                            ),
-                          ),
-                          //  Container(
-                          //    margin: EdgeInsets.only(top:20),
-
-                          // ///title
-                          // padding:
-                          //     EdgeInsets.only(left: 10, right: 10, top: 10),
-                          // ////////////TITLE
-                          // child: Text(title,
-                          //     style: TextStyle(
-                          //         fontWeight: FontWeight.bold,
-                          //         fontSize: 18))),
+                          ))
                         ],
                       ),
-                      Container(
-                        child: Column(
-                          children: [
-                            Container(
-                                alignment: Alignment.centerLeft,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Container(
+                                height: 40,
+                                padding: EdgeInsets.only(
+                                    top: 5, bottom: 5, left: 10),
+                                decoration: BoxDecoration(
+                                    border: Border(
+                                  left: BorderSide(
+                                    color: Colors.grey,
+                                    width: 0.5,
+                                  ),
 
-                                ///title
-                                padding: EdgeInsets.only(
-                                    left: 30, right: 10, top: 10),
-                                ////////////TITLE
-                                child: Text(title,
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14))),
-                            Container(
-                                padding: EdgeInsets.only(
-                                    left: 10, right: 10, top: 5),
-                                alignment: Alignment.center,
-                                /////////location
+                                  //color: Colors.grey, width: 0.5
+                                )),
                                 child: Row(
+                                  //crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     Icon(
-                                      Icons.place,
-                                      size: 20,
+                                      Icons.person,
                                       color: mainColor,
                                     ),
-                                    Expanded(
-                                        ///////////////LOCATION
-                                        child: Text(location,
-                                            style: TextStyle(fontSize: 14))),
+                                    Text(companyName.length > 8
+                                        ? companyName.substring(0, 8) + ".."
+                                        : companyName)
                                   ],
                                 )),
-                            ListTile(
-                              title: Row(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                        padding: EdgeInsets.only(
-                                            left: 0, right: 10, top: 0),
-                                        alignment: Alignment.center,
-                                        /////////location
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.group,
-                                              color: mainColor,
-                                            ),
-                                            Expanded(
-
-                                                ///////////////LOCATION
-                                                child: Text(" " + companyName,
-                                                    style: TextStyle(
-                                                        fontSize: 16))),
-                                          ],
-                                        )),
-                                  ),
-                                  ///////////////
-                                ],
-                              ),
-                              subtitle: Row(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                        // margin: EdgeInsets.only(
-                                        //     top: 10,
-                                        //     bottom: 5,
-                                        //     left: 2.5,
-                                        //     right: 10),
-                                        // padding: EdgeInsets.only(top: 5, bottom: 5),
-                                        // color: mainColor,
-                                        // alignment: Alignment.center,
-
-                                        ///price//PRICE
-                                        child: Text("₦ " + priceWithCommer,
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                color: mainColor))),
-                                  ),
-                                  InkWell(
-                                    child: Card(
-                                      color: Colors.grey[200],
-                                      shape: StadiumBorder(),
-                                      child: Container(
-                                        padding: EdgeInsets.only(
-                                            top: 2,
-                                            bottom: 2,
-                                            left: 15,
-                                            right: 15),
-                                        child: Icon(
-                                          Icons.phone,
-                                          color: mainColor,
-                                        ),
-                                      ),
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              child: Container(
+                                  alignment: Alignment.center,
+                                  height: 40,
+                                  padding: EdgeInsets.only(top: 5, bottom: 5),
+                                  decoration: BoxDecoration(
+                                      border: Border(
+                                    right: BorderSide(
+                                      color: Colors.grey,
+                                      width: 0.5,
                                     ),
-                                    onTap: () {
-                                      launch("tel://" + phoneNumber);
-                                      //           //print("jjf");
-                                    },
-                                  )
-                                  // Expanded(child: Container(child:  ,),)
-                                ],
-                              ),
+                                    top: BorderSide(
+                                      color: Colors.grey,
+                                      width: 0.5,
+                                    ),
+                                    // color: Colors.grey, width: 0.4
+                                  )),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.phone_in_talk,
+                                        color: mainColor,
+                                      ),
+                                    ],
+                                  )),
+                              onTap: () {
+                                launch("tel://" + phoneNumber);
+                              },
                             ),
-                          ],
-                        ),
+                          )
+                        ],
                       )
-
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.center,
-                      //   crossAxisAlignment: CrossAxisAlignment.center,
-                      //   children: [
-                      //     Expanded(
-                      //       child: InkWell(
-                      //         onTap: () {
-                      //           launch("tel://" + phoneNumber);
-                      //           //print("jjf");
-                      //         },
-                      //         child: Container(
-                      //             margin: EdgeInsets.only(
-                      //                 top: 10,
-                      //                 bottom: 5,
-                      //                 left: 10,
-                      //                 right: 2.5),
-                      //             padding:
-                      //                 EdgeInsets.only(top: 5, bottom: 5),
-                      //             color: mainColor,
-                      //             alignment: Alignment.center,
-
-                      //             ///price//PRICE
-                      //             child: Container(
-                      //               alignment: Alignment.center,
-                      //               child: Row(
-                      //                 mainAxisAlignment:
-                      //                     MainAxisAlignment.center,
-                      //                 children: [
-                      //                   Icon(
-                      //                     Icons.phone,
-                      //                     color: whiteColor,
-                      //                     size: 20,
-                      //                   ),
-                      //                   SizedBox(width: 5),
-                      //                   Text("Call",
-                      //                       style: TextStyle(
-                      //                           fontSize: 16,
-                      //                           color: whiteColor))
-                      //                 ],
-                      //               ),
-                      //             )),
-                      //       ),
-                      //     ),
-                      //     Expanded(
-                      //       child: Container(
-                      //           margin: EdgeInsets.only(
-                      //               top: 10,
-                      //               bottom: 5,
-                      //               left: 2.5,
-                      //               right: 10),
-                      //           padding: EdgeInsets.only(top: 5, bottom: 5),
-                      //           color: mainColor,
-                      //           alignment: Alignment.center,
-
-                      //           ///price//PRICE
-                      //           child: Text("₦ " + priceWithCommer,
-                      //               style: TextStyle(
-                      //                   fontSize: 16, color: whiteColor))),
-                      //     )
-                      //   ],
-                      // ),
-
-                      //  MaterialButton(
-                      //    shape: StadiumBorder(),
-                      //    onPressed: (){},
-                      //    elevation: 5.0,
-                      //    color: Colors.white,
-
-                      //   ///////type
-                      //   child: Container(child: Text(row[i]['c'][7]))
-
-                      // ),
-
-                      //  Container(
-                      //   child: Text(row[i]['c'][2])
-
-                      // ),
-                      //  Container(
-                      //   child: Text(row[i]['c'][3])
-
-                      // ),
-                      //  Container(
-                      //   child: Text(row[i]['c'][4])
-
-                      // ),
-                      //  Container(
-                      //    ///date
-                      //   child: Text(row[i]['c'][5])
-
-                      // ),
-                      //  Container(
-                      //    ////picture array
-                      //   child: Text(row[i]['c'][6][0])
-
-                      // ),
                     ],
                   ),
                 ),

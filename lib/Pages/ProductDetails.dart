@@ -7,13 +7,17 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class ProductDetails extends StatefulWidget {
   Map<String, dynamic> productDetails;
   List images;
+
+  ///String type;
   ProductDetails(this.productDetails, this.images);
 
   @override
@@ -22,7 +26,7 @@ class ProductDetails extends StatefulWidget {
 
 class _ProductDetailsState extends State<ProductDetails> {
   //Center(child: Text(productDetails['location']),),
-   final addCommer = new NumberFormat("#,##0.00", "en_US");
+  final addCommer = new NumberFormat("#,##0.00", "en_US");
   List imagesList = [];
   var currentIndex = 0;
   var productDetails;
@@ -31,8 +35,15 @@ class _ProductDetailsState extends State<ProductDetails> {
   void initState() {
     productDetails = widget.productDetails;
     for (var i = 0; i < widget.images.length; i++) {
-      imagesList.add(widget.images[i]['src']);
       //print(widget.images[i]['src']);
+      try {
+        if (widget.images[i].toString().startsWith("{")) {
+          imagesList.add(widget.images[i]['src']);
+        }
+      } catch (Exception) {
+        //print("ff");
+
+      }
     }
     //imagesList = widget.images;
     // TODO: implement initState
@@ -54,92 +65,99 @@ class _ProductDetailsState extends State<ProductDetails> {
 
     return Scaffold(
       bottomNavigationBar: bottomNavigationBar(context, 2),
-        appBar: AppBar(
-          backgroundColor: mainColor,
-          centerTitle: true,
-          title: Text(productDetails['title']),
-        ),
-        body: SingleChildScrollView(
-          child: Container(
-            
-              child: Column(
-                children: [
-                  Container(child: theCarousel(context)),
-                  Container(
-                    width: width,
-                    margin: EdgeInsets.symmetric(horizontal: 5.0),
-                    child: Column(
-                      children: [
-                        Container(
-                          margin: EdgeInsets.symmetric(horizontal: 10.0),
-                            alignment: Alignment.center,
-                            child: Text(
-                              productDetails['title'],
-                              style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
-                            )),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.home,
-                              color: mainColor,
-                            ),
-                            Text(
-                              "For " + productDetails['type'],
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                                margin: EdgeInsets.only(
-                                  left: 10,
-                                ),
+      appBar: AppBar(
+        backgroundColor: mainColor,
+        centerTitle: true,
+        title: Text(productDetails['title']),
+      ),
+      body: SingleChildScrollView(
+        child: Container(
+          child: Column(
+            children: [
+              Container(child: theCarousel(context)),
+              Container(
+                width: width,
+                margin: EdgeInsets.symmetric(horizontal: 5.0),
+                child: Column(
+                  children: [
+                    Container(
+                        margin: EdgeInsets.only(
+                            top: 10.0, bottom: 10.0, left: 16, right: 10),
+                        alignment: Alignment.center,
+                        child: Text(
+                          productDetails['title'],
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        )),
+                    productDetails['type'] != ""
+                        ? Row(
+                            //  mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(left: 16),
                                 child: Icon(
-                                  Icons.place,
+                                  Icons.home,
                                   color: mainColor,
-                                )),
-                            Expanded(
-                                child: Container(
-                                  
-                                    child: Text(
-                              productDetails['location'],
-                              
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ))),
-                          ],
-                        ),
-                        Row(children: [
-                          Expanded(
-                            child: Container(
-                                margin: EdgeInsets.only(
-                                    top: 10, bottom: 5, left: 20, right: 20),
-                                padding: EdgeInsets.only(top: 5, bottom: 5),
-                                color: mainColor,
-                                alignment: Alignment.center,
-
-                                ///price//PRICE
-                                child: Text("₦ " + productDetails['price'],
-                                    style: TextStyle(
-                                        fontSize: 16, color: Colors.white))),
+                                ),
+                              ),
+                              Text(
+                                "For " + productDetails['type'],
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ],
                           )
-                        ])
-                      ],
-                    ),
-                  ),
+                        : Container(),
+                    productDetails['location'] != ""
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                  margin: EdgeInsets.only(
+                                    left: 12,
+                                  ),
+                                  child: Icon(
+                                    Icons.place,
+                                    color: mainColor,
+                                  )),
+                              Expanded(
+                                  child: Container(
+                                      child: Text(
+                                productDetails['location'],
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ))),
+                            ],
+                          )
+                        : Container(),
+                    productDetails['price'] != ""
+                        ? Row(children: [
+                            Expanded(
+                              child: Container(
+                                  margin: EdgeInsets.only(
+                                      top: 10, bottom: 5, left: 20, right: 20),
+                                  padding: EdgeInsets.only(top: 5, bottom: 5),
+                                  color: mainColor,
+                                  alignment: Alignment.center,
 
-                  //////////////////////////////////////////////////////////////////////////////////
-                  //////////////////////////////LOAD THE REST FROM SERVER////////////////////////////
-                  loadFromServer()
-                ],
+                                  ///price//PRICE
+                                  child: Text("₦ " + productDetails['price'],
+                                      style: TextStyle(
+                                          fontSize: 16, color: Colors.white))),
+                            )
+                          ])
+                        : Container()
+                  ],
+                ),
               ),
-            ),
+
+              //////////////////////////////////////////////////////////////////////////////////
+              //////////////////////////////LOAD THE REST FROM SERVER////////////////////////////
+              loadFromServer()
+            ],
           ),
-        );
+        ),
+      ),
+    );
   }
 
   ////////////////////////LOADE THE PRODUCT DETAILS FROM SERVER
@@ -147,11 +165,11 @@ class _ProductDetailsState extends State<ProductDetails> {
   Widget loadFromServer() {
     Future fetchProperties() async {
       String url =
-          "http://geohomesgroup.com/admin/process/loadform?pageType=properties&mobile=1&user_id=1&id=" +
+          "https://geohomesgroup.com/admin/process/loadform?pageType=properties&mobile=1&user_id=1&id=" +
               productDetails['id'];
       var response = await http.get(url);
       if (response.statusCode == 200) {
-       // print(response.body);
+        // print(response.body);
 
         return jsonDecode(response.body);
       }
@@ -171,14 +189,13 @@ class _ProductDetailsState extends State<ProductDetails> {
         future: fetchProperties(),
         builder: (ctx, snapshot) {
           if (snapshot.hasData) {
-          //  print("ffff"+snapshot.data[0]['state']);
+            //  print("ffff"+snapshot.data[0]['state']);
             return Container(
                 width: MediaQuery.of(context).size.width,
-               
                 child: Column(
                   children: [
                     descriptions(snapshot.data),
-                     fetchRelatedProperties(snapshot.data[0]['state']),
+                    fetchRelatedProperties(snapshot.data[0]['state']),
                   ],
                 ));
           }
@@ -213,41 +230,42 @@ class _ProductDetailsState extends State<ProductDetails> {
     /////////varies////
     var tags = json.decode(data[0]['tags']);
     var tag = null;
-    tags.length > 1 ? tag =  tags["Square Feet"]:tag = "";
-    
+    tags.length > 1 ? tag = tags["Square Feet"] : tag = "";
+
     //print("==="+tag);
-    
+
     var pcategories = data[0]['pcategories'];
     var categories = data[0]['categories'];
     var alternate_vendor = data[0]['alternate_vendor'];
 
     ////////////varies/////////////
-    var vendor_id  = data[0]['vendor_id'];
+    var vendor_id = data[0]['vendor_id'];
     var description = data[0]['sales_desc'];
-    var state =  data[0]['state'];
-    
+    var state = data[0]['state'];
+
     return Container(
       child: Column(
         children: [
-          
-             Container(
-              child: Text(
-                "Property Details",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
+          Container(
+            child: Text(
+              " Details ",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-          
+          ),
+
           SizedBox(height: 10),
-        tag != ""?  Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.check,
-                color: mainColor,
-              ),
-              Text("Area - " + tag)
-            ],
-          ):Center(),
+          tag != ""
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.check,
+                      color: mainColor,
+                    ),
+                    Text("Area - " + tag)
+                  ],
+                )
+              : Center(),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -255,79 +273,92 @@ class _ProductDetailsState extends State<ProductDetails> {
                 Icons.check,
                 color: mainColor,
               ),
-              Text("Property Category - " +   pcategories.replaceAll(pcategories[0], pcategories[0].toUpperCase()))
+              Text(" Category - " +
+                  pcategories.replaceAll(
+                      pcategories[0], pcategories[0].toUpperCase()))
             ],
           ),
 
-          
-         categories != null ?  Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.check,
-                color: mainColor,
-              ),
-             Text("Property Type - " + categories) 
-            ],
-          ):Center(),
+          categories != null
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.check,
+                      color: mainColor,
+                    ),
+                    Text("Property Type - " + categories)
+                  ],
+                )
+              : Center(),
 
           ////////////////////////////////////////////////////BORDER CONTAINER CALLING///////////
-         alternate_vendor != null? borderContainer(alternate_vendor,Icons.phone,"phone"):Center(),
-          vendor_id.length > 2? borderContainer(vendor_id,Icons.email,""):Center(),
-           ////////////////
-           Container(
-             margin:  EdgeInsets.symmetric(horizontal:10),
-             padding: EdgeInsets.only(top:10,bottom:10),
-             child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 10.0),
-               child: Text(description)),),
-             SizedBox(height:10),
-             Container(
-               margin: EdgeInsets.only(bottom:20),
-               child: Text("Related Properties",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),),
-               ),
-           
-
-
-          
+          alternate_vendor != null
+              ? borderContainer(alternate_vendor, Icons.phone, "phone")
+              : Center(),
+          vendor_id.length > 2
+              ? borderContainer(vendor_id, Icons.people, "")
+              : Center(),
+          ////////////////
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 10),
+            padding: EdgeInsets.only(top: 10, bottom: 10),
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 10.0),
+              // Center(
+              //   child:  HtmlWidget('<a href="hh.html"><h3 style="color:green; margin-left:30px">Hello ooo World!</h3>')
+              // ),
+              //       Container(
+              // child: WebView(
+              //   initialUrl: Uri.dataFromString('<html><body><iframe src="https://www.youtube.com/embed/abc"></iframe></body></html>', mimeType: 'text/html').toString(),
+              //   javascriptMode: JavascriptMode.unrestricted,
+              // )),
+              child: HtmlWidget(
+                  "<h5 style='font-size:15px'>" + description + "</h5>"),
+            ),
+          ),
+          SizedBox(height: 10),
+          Container(
+            margin: EdgeInsets.only(bottom: 20),
+            child: Text(
+              "Related Properties",
+              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+            ),
+          ),
         ],
       ),
     );
   }
 
-
-
   ///////////////////////////////////BORDERED CONTAINER//////////
-  borderContainer(String text,IconData icon,String type){
+  borderContainer(String text, IconData icon, String type) {
     return Row(children: [
-          Expanded(
-            child: InkWell(
-              onTap: (){
-                if(type == "phone"){
-                  launch("tel://"+text);
-                  //print(text);
-                }
-              },
-              child: Container(
-                  decoration: BoxDecoration(border: Border.all(color: mainColor)),
-                  margin:
-                      EdgeInsets.only(top:5, left: 20, right: 20),
-                  padding: EdgeInsets.only(top: 5, bottom: 5),
-                  //color: mainColor,
-                  alignment: Alignment.center,
+      Expanded(
+        child: InkWell(
+          onTap: () {
+            if (type == "phone") {
+              launch("tel://" + text);
+              //print(text);
+            }
+          },
+          child: Container(
+              decoration: BoxDecoration(border: Border.all(color: mainColor)),
+              margin: EdgeInsets.only(top: 5, left: 20, right: 20),
+              padding: EdgeInsets.only(top: 5, bottom: 5),
+              //color: mainColor,
+              alignment: Alignment.center,
 
-                  ///price//PRICE
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(icon, color: mainColor),
-                      Text(text,
-                          style: TextStyle(fontSize: 16, color: mainColor)),
-                    ],
-                  )),
-            ),
-          )
-        ]);
+              ///price//PRICE
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, color: mainColor),
+                  Text(text, style: TextStyle(fontSize: 16, color: mainColor)),
+                ],
+              )),
+        ),
+      )
+    ]);
   }
   //////////////////////////////
 
@@ -350,7 +381,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                             context,
                             MaterialPageRoute(
                                 builder: (BuildContext) =>
-                                    ShowFullImage(imgUrl,widget.images)));
+                                    ShowFullImage(imgUrl, widget.images)));
                       },
                       child: CachedNetworkImage(
                         //////////////IMAGE///////////////////
@@ -428,114 +459,110 @@ class _ProductDetailsState extends State<ProductDetails> {
     );
   }
 
-
-
   /////////////////////////////////////FETCHING RELATED PROPERTIES///////////////////////
-  fetchRelatedProperties(String state){
+  fetchRelatedProperties(String state) {
     Future fetchProperties() async {
-    String url =
-        "http://geohomesgroup.com/admin/process/list?pageType=m-properties&mobile=1&user_id=1&search=&condition=state,"+state;
-    var response = await http.get(url);
-    if (response.statusCode == 200) {
-    // print(response.body);
+      String url =
+          "https://geohomesgroup.com/admin/process/list?pageType=m-properties&mobile=1&user_id=1&search=&condition=status,1state," +
+              state;
+      var response = await http.get(url);
+      if (response.statusCode == 200) {
+        // print(response.body);
 
-      return jsonDecode(response.body);
-    }else{
-      print("erro");
+        return jsonDecode(response.body);
+      } else {
+        print("erro");
+      }
     }
+
+    return FutureBuilder(
+      future: fetchProperties(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          print("Erro fecting json....");
+          return Center(
+            child: Column(
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(top: 100),
+                ),
+                Center(
+                  child: Text(
+                    "Unknown Server error occcoured",
+                    style: TextStyle(fontSize: 20, color: Colors.red),
+                  ),
+                )
+              ],
+            ),
+          );
+        }
+        if (snapshot.data.toString() == "[]") {
+          return Center(
+            child: Column(
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(top: 100),
+                ),
+                Center(
+                  child: Text(
+                    "No Data",
+                    style: TextStyle(fontSize: 25),
+                  ),
+                )
+              ],
+            ),
+          );
+        }
+
+        if (snapshot.hasData) {
+          if (snapshot.data['total'] == 0) {
+            return noResultWidget();
+            // return Container(
+            //   height: 300,
+            //   margin: EdgeInsets.only(top: 0,left: 10,right: 10),
+            //   alignment: Alignment.center,
+            //   child: Container(
+            //     alignment: Alignment.center,
+            //     child: FittedBox(
+            //       child: Image.asset("assets/images/noresult.gif")),),
+            // );
+          }
+          // print(snapshot.data);
+          return ListOfPropertiesSingle(
+            list: snapshot.data,
+          );
+        } else {
+          return Container(
+            child: Column(
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(top: 100),
+                ),
+                CircularProgressIndicator(
+                  backgroundColor: Colors.white,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 10),
+                ),
+                Text(
+                  "Loading Data...",
+                  style: TextStyle(color: Colors.white),
+                )
+              ],
+            ),
+          );
+        }
+      },
+    );
   }
 
-     return FutureBuilder(
-                  future: fetchProperties(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      print(
-                         "Erro fecting json....");
-                         return Center(
-                        child: Column(
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(top: 100),
-                            ),
-                            Center(
-                              child: Text(
-                                "Unknown Server error occcoured",
-                                style: TextStyle(fontSize: 20,color: Colors.red),
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    }
-                    if (snapshot.data.toString() == "[]") {
-                      return Center(
-                        child: Column(
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(top: 100),
-                            ),
-                            Center(
-                              child: Text(
-                                "No Data",
-                                style: TextStyle(fontSize: 25),
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    }
-
-                    if (snapshot.hasData) {
-                      if (snapshot.data['total'] == 0) {
-                        return  noResultWidget();
-                      // return Container(
-                      //   height: 300,
-                      //   margin: EdgeInsets.only(top: 0,left: 10,right: 10),
-                      //   alignment: Alignment.center,
-                      //   child: Container(
-                      //     alignment: Alignment.center,
-                      //     child: FittedBox(
-                      //       child: Image.asset("assets/images/noresult.gif")),),
-                      // );
-                    }
-                     // print(snapshot.data);
-                      return ListOfPropertiesSingle(list: snapshot.data,);
-                    } else {
-                      return Container(
-                        child: Column(
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(top: 100),
-                            ),
-                            CircularProgressIndicator(
-                              backgroundColor: Colors.white,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 10),
-                            ),
-                            Text(
-                              "Loading Data...",
-                              style: TextStyle(color: Colors.white),
-                            )
-                          ],
-                        ),
-                      );
-                    }
-                  },
-                );
-  }
-  
   //////////////////////////////////////////////////////
 }
-
-
-
 
 ////////////////////////////////////LIST OF RELATED PROPERTIES//////////////////
 ///
 
 class ListOfProperties1 extends StatefulWidget {
-  
   Map<String, dynamic> list;
   ListOfProperties1({this.list});
   @override
@@ -555,16 +582,13 @@ class _ListOfPropertiesState extends State<ListOfProperties> {
 
     return Container(
         width: MediaQuery.of(context).size.width,
-       // height: hieght - 150,
+        // height: hieght - 150,
         padding: EdgeInsets.only(left: 5, right: 5, top: 5),
         child: RefreshIndicator(
-          onRefresh: (){
-
-          },
+          onRefresh: () {},
           child: ListView.builder(
-                          shrinkWrap: true,
+              shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-
               itemCount:
                   widget.list['row'] == null ? 0 : widget.list['row'].length,
               itemBuilder: (context, i) {
@@ -573,7 +597,7 @@ class _ListOfPropertiesState extends State<ListOfProperties> {
                 var row = widget.list['row'];
                 var id = widget.list['row'][i]['i'];
                 var title = row[i]['c'][0];
-                
+
                 var price = row[i]['c'][1];
                 var category = row[i]['c'][2];
                 var company = row[i]['c'][3];
@@ -581,31 +605,30 @@ class _ListOfPropertiesState extends State<ListOfProperties> {
                 var postDate = row[i]['c'][5];
                 var type = row[i]['c'][7];
                 var location = row[i]['c'][8];
-                  var priceWithCommer = numberFormat.format(json.decode(price));
+                var priceWithCommer = numberFormat.format(json.decode(price));
 
                 return InkWell(
-                  onTap: (){
+                  onTap: () {
                     ///////////////////////////////////DETAILS PAGES////////////
-                    
-                    var details = {"id":id,"title":title,
-                                    "price":priceWithCommer,
-                                      "category":category,
-                                      "company":company,
-                                      "status":status,
-                                      "postDate":postDate,
-                                      "type":type,
-                                      "location":location
-                                      };
-                                      ////////////////////////
-                             Navigator.push(context, MaterialPageRoute(builder: (BuildContext)=>
-                             ProductDetails(
-                               details,
-                               images
 
-
-                             )));  
-                             //////////////////////////////////////       
-
+                    var details = {
+                      "id": id,
+                      "title": title,
+                      "price": priceWithCommer,
+                      "category": category,
+                      "company": company,
+                      "status": status,
+                      "postDate": postDate,
+                      "type": type,
+                      "location": location
+                    };
+                    ////////////////////////
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext) =>
+                                ProductDetails(details, images)));
+                    //////////////////////////////////////
                   },
                   child: Card(
                     elevation: 5,
@@ -625,14 +648,14 @@ class _ListOfPropertiesState extends State<ListOfProperties> {
                                     progressIndicatorBuilder:
                                         (context, url, downloadProgress) =>
                                             SizedBox(
-                                              height: 100.0,
-                                              width: 100.0,
-                                              child: Center(
-                                                child: CircularProgressIndicator(
-                                                  strokeWidth: 1.0,
-                                                    value: downloadProgress.progress),
-                                              ),
-                                            ),
+                                      height: 100.0,
+                                      width: 100.0,
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 1.0,
+                                            value: downloadProgress.progress),
+                                      ),
+                                    ),
                                     errorWidget: (context, url, error) =>
                                         Icon(Icons.error),
                                   ),
@@ -658,15 +681,15 @@ class _ListOfPropertiesState extends State<ListOfProperties> {
                             ],
                           ),
                           Container(
-                            
 
                               ///title
                               padding:
                                   EdgeInsets.only(left: 50, right: 10, top: 10),
-                                  ////////////TITLE
+                              ////////////TITLE
                               child: Text(title,
                                   style: TextStyle(
-                                      fontWeight: FontWeight.bold, fontSize: 18))),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18))),
                           Container(
                               padding:
                                   EdgeInsets.only(left: 10, right: 10, top: 10),
@@ -675,7 +698,7 @@ class _ListOfPropertiesState extends State<ListOfProperties> {
                               child: Row(
                                 children: [
                                   Expanded(
-                                    ///////////////LOCATION
+                                      ///////////////LOCATION
                                       child: Text(location,
                                           style: TextStyle(fontSize: 16))),
                                 ],
@@ -688,15 +711,19 @@ class _ListOfPropertiesState extends State<ListOfProperties> {
                               Expanded(
                                 child: Container(
                                     margin: EdgeInsets.only(
-                                        top: 10, bottom: 5, left: 10, right: 10),
+                                        top: 10,
+                                        bottom: 5,
+                                        left: 10,
+                                        right: 10),
                                     padding: EdgeInsets.only(top: 5, bottom: 5),
                                     color: mainColor,
                                     alignment: Alignment.center,
 
                                     ///price//PRICE
-                                    child: Text("₦ " + priceWithCommer,
+                                    child: Text("₦" + priceWithCommer,
                                         style: TextStyle(
-                                            fontSize: 16, color: Colors.white))),
+                                            fontSize: 16,
+                                            color: Colors.white))),
                               )
                             ],
                           ),

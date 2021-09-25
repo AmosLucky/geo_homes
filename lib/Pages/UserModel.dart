@@ -6,11 +6,17 @@ class UserModel{
   String password =""; 
   String photourl = "";
   String response = "";
+  String phone = "";
  // myUser(String userId,String nickName)
 
  setResponse(String response){
    this.response = response;
 
+ }
+
+setPhone(String phone){
+   this.phone = phone;
+   
  }
 
  setUserId(String userId){
@@ -52,6 +58,11 @@ class UserModel{
  getPhotoUrl(){
    return this.photourl;
  }
+ getPhone(){
+   return this.phone;
+ }
+ 
+ 
 
 }
 

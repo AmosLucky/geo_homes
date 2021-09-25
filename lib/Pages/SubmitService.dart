@@ -15,16 +15,16 @@ import 'package:http/http.dart' as http;
 
 import 'UserModel.dart';
 
-class SubmitProperty extends StatefulWidget {
+class SubmitService extends StatefulWidget {
   Map<String, dynamic> productDetails;
   List images;
   bool isEdit = false;
-  SubmitProperty({this.productDetails, this.images, this.isEdit});
+  SubmitService({this.productDetails, this.images, this.isEdit});
   @override
-  _SubmitPropertyState createState() => _SubmitPropertyState();
+  _SubmitServiceState createState() => _SubmitServiceState();
 }
 
-class _SubmitPropertyState extends State<SubmitProperty> {
+class _SubmitServiceState extends State<SubmitService> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   var _tagKey = GlobalKey<FormState>();
   var mainTags = {};
@@ -107,7 +107,7 @@ class _SubmitPropertyState extends State<SubmitProperty> {
   Future fetchPropertiesEdit() async {
     if (widget.isEdit) {
       String url =
-          "http://geohomesgroup.com/admin/process/list?pageType=m-properties&mobile=1&user_id=" +
+          "http://geohomesgroup.com/admin/process/list?pageType=m-services&mobile=1&user_id=" +
               widget.productDetails['id'];
       var response = await http.get(url);
       if (response.statusCode == 200) {
@@ -148,7 +148,7 @@ class _SubmitPropertyState extends State<SubmitProperty> {
         automaticallyImplyLeading: false,
         backgroundColor: mainColor,
         centerTitle: true,
-        title: Text("Submit Property"),
+        title: Text("Submit Product"),
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -180,29 +180,52 @@ class _SubmitPropertyState extends State<SubmitProperty> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          headText("Property Details"),
+                          headText("Service Details"),
                           textField(
-                              labelText: "Title of Property",
-                              errorText: "Title is empty",
+                              labelText: "Name of Service",
+                              errorText: "Name is empty",
                               key: "description",
                               controller: _controller),
                           //////////////////SELECTS/////////////
 
                           selectField1(
                               items: [
-                                "Residential buildings",
-                                "Commercial buildings",
-                                "Lands",
-                                "Estates"
+                                "Well Drillers",
+                                "Welder",
+                                "Tiler",
+                                "Solar Installler",
+                                "Safety Manager",
+                                "Roofing",
+                                "POP Installer",
+                                "Plumber",
+                                "Pipe Filter",
+                                "Painter",
+                                "Landscaper",
+                                "Joiners",
+                                "Interior Designer",
+                                "Horticulturist/ Florist",
+                                "Glaziers",
+                                "Fumigator/Pest Controller",
+                                "Fabricator",
+                                "Engineer",
+                                "Electrician",
+                                "Electric/wire Fencing",
+                                "Concrete Caster",
+                                "Cleaning Technician",
+                                "CCTV Installer",
+                                "Carpenter",
+                                "Brick Mason",
+                                "Borehole Drillers",
+                                "Air Condition Technician"
                               ],
-                              hint: "Property Type",
+                              hint: "Service Type",
                               widgetNumber: 1,
                               key: "pcategories"),
-                          selectField2(
-                              items: ["For Rent", "For Sale"],
-                              hint: "Select Lease Type",
-                              widgetNumber: 1,
-                              key: "unit"),
+                          // selectField2(
+                          //     items: ["For Rent", "For Sale"],
+                          //     hint: "Select Lease Type",
+                          //     widgetNumber: 1,
+                          //     key: "unit"),
                           selectField3(
                               items: listOfStates,
                               hint: "Select State",
@@ -217,17 +240,17 @@ class _SubmitPropertyState extends State<SubmitProperty> {
                               key: "city"),
 
                           //////////////
-                          textField(
-                              labelText: "Location Address",
-                              errorText: "Location is empty",
-                              key: "warehouse"),
+                          // textField(
+                          //     labelText: "Location Address",
+                          //     errorText: "Location is empty",
+                          //     key: "warehouse"),
 
                           //////////////
-                          textField(
-                              labelText: "Total price",
-                              errorText: "Price is empty",
-                              key: "price1",
-                              keyBoardType: TextInputType.number),
+                          // textField(
+                          //     labelText: "Total price",
+                          //     errorText: "Price is empty",
+                          //     key: "price1",
+                          //     keyBoardType: TextInputType.number),
 
                           //////////////
                           textField(
@@ -279,10 +302,12 @@ class _SubmitPropertyState extends State<SubmitProperty> {
                                       } else if (selectedValue1 == null) {
                                         toast("Please select Property Type");
                                         return;
-                                      } else if (selectedValue2 == null) {
-                                        toast("Please select Lease type");
-                                        return;
-                                      } else if (selectedValue3 == null) {
+                                      }
+                                      // else if (selectedValue2 == null) {
+                                      //   toast("Please select Lease type");
+                                      //   return;
+                                      // }
+                                      else if (selectedValue3 == null) {
                                         toast("Please select State");
                                         return;
                                       }

@@ -5,13 +5,14 @@ import 'package:Geo_home/Pages/SearchDisplay.dart';
 import 'package:Geo_home/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'SearchFilter.dart';
 
 class SearchPage extends StatefulWidget {
   bool showArrow;
-  SearchPage({this.showArrow});
-  
+  String type;
+  SearchPage({this.showArrow, this.type});
 
   @override
   _SearchPageState createState() => _SearchPageState();
@@ -26,17 +27,26 @@ class _SearchPageState extends State<SearchPage> {
   String state = "Abia";
   String priceRange = "500000+-+15000000";
   bool showArrow;
+  var searchType;
 
   @override
   void initState() {
-    if(widget.showArrow != null){
-
+    getSharedPreference();
+    print(widget.type);
+    if (widget.showArrow != null) {
       showArrow = widget.showArrow;
-    }else{
+    } else {
       showArrow = true;
     }
     // TODO: implement initState
     super.initState();
+  }
+
+  SharedPreferences _sharePreference;
+  getSharedPreference() async {
+    _sharePreference = await SharedPreferences.getInstance();
+    searchType = _sharePreference.getString("searchType");
+    print(searchType);
   }
 
   @override
@@ -44,132 +54,158 @@ class _SearchPageState extends State<SearchPage> {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Colors.blue[200],
+        backgroundColor: Colors.blue[200],
         appBar: AppBar(
           elevation: 0.0,
           centerTitle: true,
           backgroundColor: whiteColor,
           automaticallyImplyLeading: false,
-        //  title:   automaticallyImplyLeading: false,
-        title: Container(
-          // margin: EdgeInsets.only(top:10),
-          child: Image.asset("assets/images/logo.jpg"), width: width - 150,
-        ),
+          //  title:   automaticallyImplyLeading: false,
+          title: Container(
+            // margin: EdgeInsets.only(top:10),
+            child: Image.asset("assets/images/logo.jpg"),
+            width: width - 150,
+          ),
         ),
         body: SingleChildScrollView(
           child: Container(
-             height: MediaQuery.of(context).size.height,
-               decoration: BoxDecoration(
-                 image: DecorationImage(
-                   fit: BoxFit.contain,
-                   
-                   image: new AssetImage("assets/images/bg.jpeg")),
-
-               ),
+            height: MediaQuery.of(context).size.height,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                  fit: BoxFit.fill,
+                  image: new AssetImage("assets/images/search-bg2.jpg")),
+            ),
             child: Column(
               children: [
-                 Container(
+                Container(
                     height: height / 8,
                     width: width,
                     //decoration: BoxDecoration(color: mainColor),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        
                         Container(
                           margin: EdgeInsets.symmetric(horizontal: 30),
                           child: Row(children: [
                             Expanded(
-                              child:Container(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              height: 50,
-              decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(5)),
-                
-              child: Row(
-                children: [
-                showArrow?  Container(
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Icon(
-                        Icons.arrow_back,
-                        size: 30,
-                        color: mainColor,
-                      ),
-                    ),
-                  ): Container(),
-                  Expanded(
-                      child: Container(
-                          margin: EdgeInsets.only(left: 10),
-                          alignment: Alignment.center,
-                          child: Form(
-                            key: _formKey,
-                            child: TextFormField(
-                              autofocus: true,
-                              textInputAction: TextInputAction.search,
-                              decoration: InputDecoration(
-                                hintText: "Type your search here",
-                                focusedBorder: InputBorder.none,
-                                enabledBorder: InputBorder.none,
-                                disabledBorder: InputBorder.none,
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                height: 50,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(5)),
+                                child: Row(
+                                  children: [
+                                    showArrow
+                                        ? Container(
+                                            child: InkWell(
+                                              onTap: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Icon(
+                                                Icons.arrow_back,
+                                                size: 30,
+                                                color: mainColor,
+                                              ),
+                                            ),
+                                          )
+                                        : Container(),
+                                    Expanded(
+                                        child: Container(
+                                            margin: EdgeInsets.only(left: 10),
+                                            alignment: Alignment.center,
+                                            child: Form(
+                                              key: _formKey,
+                                              child: TextFormField(
+                                                autofocus: true,
+                                                textInputAction:
+                                                    TextInputAction.search,
+                                                decoration: InputDecoration(
+                                                  hintText:
+                                                      "Type your search here",
+                                                  focusedBorder:
+                                                      InputBorder.none,
+                                                  enabledBorder:
+                                                      InputBorder.none,
+                                                  disabledBorder:
+                                                      InputBorder.none,
+                                                ),
+                                                validator: (input) {
+                                                  if (input.trim().isEmpty) {
+                                                    return "";
+                                                  }
+                                                },
+                                                onSaved: (val) {
+                                                  keyword = val;
+                                                },
+                                                onEditingComplete: () {
+                                                  if (_formKey.currentState
+                                                      .validate()) {
+                                                    _formKey.currentState
+                                                        .save();
+
+                                                    if (showArrow) {
+                                                      Route route =
+                                                          MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  SearchDisplay(
+                                                                    keyword:
+                                                                        keyword,
+                                                                    state: null,
+                                                                    lowRange:
+                                                                        null,
+                                                                    highRange:
+                                                                        null,
+                                                                    sort: null,
+                                                                    type:
+                                                                        searchType,
+                                                                  ));
+                                                      Navigator.push(
+                                                          context, route);
+                                                    } else {
+                                                      Navigator.of(context).push(
+                                                          MaterialPageRoute(
+                                                              builder:
+                                                                  (BuildContext) =>
+                                                                      SearchDisplay(
+                                                                        keyword:
+                                                                            keyword,
+                                                                      )));
+                                                    }
+
+                                                    // Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext)=>SearchDisplay(
+                                                    //   keyword: keyword,
+                                                    // )));
+
+                                                    // Navigator.of(context).push(MaterialPageRoute(builder: Build))
+
+                                                  }
+                                                  // searchProducts();
+                                                },
+                                              ),
+                                            ))),
+                                    // Container(
+                                    //   child: InkWell(
+                                    //     child: Icon(
+                                    //       Icons.tune,
+                                    //       size: 30,
+                                    //       color: mainColor,
+                                    //     ),
+                                    //     onTap: () {
+                                    //       setState(() {
+                                    //         if (showFilter) {
+                                    //           showFilter = false;
+                                    //         } else {
+                                    //           showFilter = true;
+                                    //         }
+                                    //       });
+                                    //       //showDialog();
+                                    //     },
+                                    //   ),
+                                    // )
+                                  ],
+                                ),
                               ),
-                              validator: (input) {
-                                if (input.trim().isEmpty) {
-                                  return "";
-                                }
-                              },
-                              onSaved: (val) {
-                                keyword = val;
-                              },
-                              onEditingComplete: () {
-                                if (_formKey.currentState.validate()) {
-                                  _formKey.currentState.save();
-
-                                  Route route = MaterialPageRoute(
-                                      builder: (context) => SearchDisplay(
-                                            keyword: keyword,
-                                            state: null,
-                                            lowRange: null,
-                                            highRange: null,
-                                            sort: null,
-                                          ));
-                                  Navigator.pushReplacement(context, route);
-
-                                  // Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext)=>SearchDisplay(
-                                  //   keyword: keyword,
-                                  // )));
-
-                                  // Navigator.of(context).push(MaterialPageRoute(builder: Build))
-
-                                }
-                                // searchProducts();
-                              },
-                            ),
-                          ))),
-                  // Container(
-                  //   child: InkWell(
-                  //     child: Icon(
-                  //       Icons.tune,
-                  //       size: 30,
-                  //       color: mainColor,
-                  //     ),
-                  //     onTap: () {
-                  //       setState(() {
-                  //         if (showFilter) {
-                  //           showFilter = false;
-                  //         } else {
-                  //           showFilter = true;
-                  //         }
-                  //       });
-                  //       //showDialog();
-                  //     },
-                  //   ),
-                  // )
-                ],
-              ),
-            ),
                             )
                           ]),
                           // child: TextFormField(
@@ -193,7 +229,6 @@ class _SearchPageState extends State<SearchPage> {
                       ],
                     )),
                 Container(
-                 
                   child: Column(
                     children: [
                       showFilter ? filterContent() : Container(),
@@ -210,15 +245,16 @@ class _SearchPageState extends State<SearchPage> {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
       setState(() {
-        url =
-            "http://geohomesgroup.com/admin/process/list?pageType=m-properties&mobile=1&user_id=1&search" +
-                keyword +
-                "&state=" +
-                state +
-                "&price-range=" +
-                priceRange +
-                "sort=" +
-                sort;
+        url = "http://geohomesgroup.com/admin/process/list?pageType=m-" +
+            widget.type +
+            "&mobile=1&user_id=1&search" +
+            keyword +
+            "&state=" +
+            state +
+            "&price-range=" +
+            priceRange +
+            "sort=" +
+            sort;
       });
       // fetchProperties();
       print(url);

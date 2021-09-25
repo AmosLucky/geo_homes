@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:Geo_home/Pages/MainPage.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:path/path.dart';
 
 import 'package:Geo_home/constants.dart';
@@ -11,6 +12,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import "package:async/async.dart";
 import 'package:http/http.dart' as http;
+
+import 'UserModel.dart';
 
 
 
@@ -42,26 +45,56 @@ class _EditPageState extends State<EditPage> {
   var selectedValue2;
   var selectedValue3;
   var tagCounter = 0;
+  var mainTags = {};
+  var msgColor = Colors.greenAccent;
+
+  var pictures = [];
+  var picturesToUpload = {};
 
   List<bool> isUploaded = [];
-  List<File> imagesList = [];
+  Map<int , dynamic> imagesList = {};
   List networkImage = [];
    List<String> tags = [];
   File _image;
   final picker = ImagePicker();
 
-  Future getImage(int i) async {
+  Future getImage(int i,String oldLink) async {
+    print(oldLink);
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
+    //picturesToUpload
 
-    setState(() {
-      if (pickedFile != null) {
+    if (pickedFile != null) {
         _image = File(pickedFile.path);
+        setState(() {
+          
+        });
+
+         /////////RESIZE IMAGE///////
         imagesList[i] = _image;
         isUploaded[i] = true;
-      } else {
+
+        ////////////////////////////
+        final bytes =  _image.readAsBytesSync(); 
+       var img64 = base64Encode(bytes);
+      String imageName = basename(_image.path);
+     var  _imageBase64 = img64;//base64Encode(imageBytes);
+     Map<String, dynamic> jsonOfImage = {"type":"picture","title":"Preview","oldLink":oldLink};
+          
+          jsonOfImage['src'] = _image.path;
+           jsonOfImage['desc'] = imageName;
+            jsonOfImage['isOriginal'] = false;
+           jsonOfImage['image_data'] = _imageBase64;
+          
+           pictures.add(i);
+
+          picturesToUpload[i] = jsonOfImage;
+
+    }else{
+       /// imagesCLick[i] = false;
         print('No image selected.');
-      }
-    });
+    }
+
+
   }
 
   ////////////////////////CANCEl LOADER
@@ -89,6 +122,7 @@ class _EditPageState extends State<EditPage> {
       String url =
          "http://geohomesgroup.com/admin/process/loadform?pageType=properties&mobile=1&user_id=1&id=" +
               widget.productDetails['id'];
+              print(widget.productDetails['id']);
     var response = await http.get(url);
     if (response.statusCode == 200) {
       
@@ -115,13 +149,20 @@ class _EditPageState extends State<EditPage> {
                 titleCtr.text = title;
                 contentCtr.text = description;
                 cityCtr.text = city;
-                selectedValue1 = type.replaceAll(type[0], type[0].toUpperCase());
-                 selectedValue2 = "For "+unit.replaceAll(unit[0], unit[0].toUpperCase());
-                  selectedValue3 = state.replaceAll(state[0], state[0].toUpperCase());
+                selectedValue1 = type.replaceAll(type[0], type[0].toUpperCase()).replaceAll("-"," ");
+                 selectedValue2 = "For "+unit.replaceAll(unit[0], unit[0].toUpperCase()).replaceAll("-"," ");
+                  selectedValue3 = state.replaceAll(state[0], state[0].toUpperCase()).replaceAll("-"," ");
+                  print(type.replaceAll(type[0], type[0].toUpperCase()));
+                  print(state.replaceAll(state[0], state[0].toUpperCase()));
                   var pictures = jsonDecode(row['picture']);
                   print(pictures[0]['src']);
                   for(int i = 0; i < pictures.length; i++){
                     networkImage.add(pictures[i]['src']);
+                  var obj = pictures[i];
+                  obj["isOriginal"] = true;
+                 
+                    picturesToUpload[i] = obj;
+                    
 
                   }
                   
@@ -129,8 +170,8 @@ class _EditPageState extends State<EditPage> {
                   
 
                   res[0].forEach((key, value){
-                    if( value == null)
-                    formValues[key]= " ";
+                    if( value == null || value == "")
+                    formValues[key]= "null";
                     else
                     formValues[key]=  value;
 
@@ -152,6 +193,7 @@ class _EditPageState extends State<EditPage> {
     // TODO: implement initState
     super.initState();
   }
+  TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +210,7 @@ class _EditPageState extends State<EditPage> {
           automaticallyImplyLeading: false,
           backgroundColor: mainColor,
           centerTitle: true,
-          title: Text("Submit Property"),
+          title: Text("Edit Property"),
         ),
         body: isSet ?SingleChildScrollView(
           child: Container(
@@ -198,20 +240,20 @@ class _EditPageState extends State<EditPage> {
                         textField(
                             labelText: "Title of Property",
                             errorText: "Title is empty",
-                            key: "title",
+                            key: "description",
                             controller: titleCtr),
                         //////////////////SELECTS/////////////
 
                         selectField1(
-                            items: ["Residential Buildings", "Commercial Buildings","Lands","Estates"],
+                            items: ["Residential buildings", "Commercial buildings","Lands","Estates"],
                             hint: "Property Type",
                             widgetNumber: 1,
-                            key: "property-type"),
+                            key: "pcategories"),
                         selectField2(
                             items: ["For Rent", "For Sale"],
                             hint: "Select Lease Type",
                             widgetNumber: 1,
-                            key: "lease-type "),
+                            key: "unit"),
                         selectField3(
                             items:  listOfStates,
                             hint: "Select State",
@@ -230,14 +272,14 @@ class _EditPageState extends State<EditPage> {
                         textField(
                             labelText: "Location Address",
                             errorText: "Location is empty",
-                            key: "location",
+                            key: "warehouse",
                             controller: locationCtr),
 
                         //////////////
                         textField(
                             labelText: "Total price",
                             errorText: "Price is empty",
-                            key: "price",
+                            key: "price1",
                             keyBoardType: TextInputType.number,
                             controller: priceCtr),
 
@@ -245,7 +287,7 @@ class _EditPageState extends State<EditPage> {
                         textField(
                             labelText: "Write the main content here",
                             errorText: "content is empty",
-                            key: "content",
+                            key: "sales_desc",
                             maxLine: 10,
                             controller: contentCtr),
                         //////////////////////
@@ -257,7 +299,7 @@ class _EditPageState extends State<EditPage> {
                         headText("Property Tags"),
                         propertyTags(),
                         SizedBox(height: 20),
-                        Text(_loginResponse,style: TextStyle(color: Colors.redAccent),),
+                        Text(_loginResponse,style: TextStyle(color: msgColor),),
 
                          SizedBox(height: 5),
 
@@ -304,15 +346,49 @@ class _EditPageState extends State<EditPage> {
                                           _loginResponse = "";
                                         });
 
+                                        /////////////add images to its array///////
+                                        pictures.clear();
+                                        picturesToUpload.forEach((key, value) { 
+                                          pictures.add(value);
+                                        });
+
+
+                                         /////////////////////CALING THE METHOD THAT SAVES PROPERTY
+                                    formValues['case'] = "1.7";
+                                    formValues['formName'] = "properties";
+                                    formValues['updated_by'] = userModel.getUserId();
+                                     formValues['created_by'] = userModel.getUserId();
+                                     formValues['vendor_id'] = userModel.getCustomerName();
+                                     formValues['alternate_vendor'] = userModel.getPhone();
+                                     formValues['itemid'] = "3a0979";
+                                     formValues['asset_type'] = "client";
+                                     formValues['status'] = "0";
+                                      // formValues["transcid"] = "transcid";
+                                      // formValues['purchase_desc'] = "purchase_desc";
+                                      //   formValues["upc"] = "upc";
+                                      //   formValues["categories"] = "categories ";
+                                      //    formValues["sunit"] = "sunit";
+                                      //    formValues["threshold"] = "threshold";
+                                      //      formValues["taxable"] = "taxable";
+                                      //      formValues["commission"] = "commission";
+                                      //       formValues["costing_method"] = "costing_method";
+                                       formValues['validation'] = "strict";
+                                        formValues['tags'] = json.encode(mainTags);
+                                        formValues['picture'] = json.encode(pictures);
+                                         print(formValues);
+                                        
+                                       // print(pictures);
+                                       // print(picturesToUpload);
+
                                         /////////////////////CALING THE METHOD THAT SAVES PROPERTY
 
-                                        postProperty();
+                                       postProperty();
                                         /////////////////////CALING THE METHOD THAT SAVES PROPERTY
 
                                         // if(_tagKey.currentState.validate()){
 
                                         //   _tagKey.currentState.save();
-                                        //   print(formValues);
+                                          
 
                                         // }
                                        
@@ -344,55 +420,51 @@ class _EditPageState extends State<EditPage> {
     );
   }
   postProperty() async {
-     Uri url = Uri.parse( "http://geohomesgroup.com/admin/process/saveform?pageType=propertis&mobile=1&user_id=1&");
-     // ignore: deprecated_member_use
-     var request = new http.MultipartRequest("POST", url);
-
-     for(int i = 0; i < 4; i++){
-       if(imagesList[i] !=  null){
-         print(imagesList[i]);
-
-          var stream =
-        new http.ByteStream(DelegatingStream.typed(imagesList[i].openRead()));
-    var length = await imagesList[i].length();
-//var uri = Uri.parse("http://10.0.2.2/foodsystem/uploadg.php");
-
+    formValues['location'] = locationCtr.text;
+     Uri url = Uri.parse( "http://geohomesgroup.com/admin/process/controllers");
+    var response = await  http.post(
+      url,
+      body:formValues,
     
+    );
 
-    var multipartFile = new http.MultipartFile("image", stream, length,
-        filename: basename(imagesList[i].path));
+     if (response.statusCode == 200) {
+      print(response.body);
+       var res = jsonDecode(response.body);
+     if(res['status']==1){
+       cityCtr.clear();
+       locationCtr.clear();
+       priceCtr.clear();
+       titleCtr.clear();
 
-    request.files.add(multipartFile);
-       }
-
-     }
-   
-    formValues.forEach((key, value) => request.fields[key] = value);
-
-// request.fields['productname'] = nameCtr.text;
-// request.fields['productprice'] = emailCtr.text;
-// request.fields['producttype'] = businessNameCtr.text;
-// request.fields['product_owner'] = businessPhoneCtr.text;
-
-    var response = await request.send();
-    final respStr = await response.stream.bytesToString();
-    if (response.statusCode == 200) {
-      print(respStr);
-      print("Image Uploaded");
-      var res = jsonDecode(respStr);
-      setState(() {
+        setState(() {
+          msgColor = Colors.greenAccent;
         _loginResponse = res["message"];
         hasClicked = false;
       });
-    } else {
-      print(response);
-      var res = jsonDecode(respStr);
-      print("Upload Failed");
-      setState(() {
+
+     }else{
+
+        setState(() {
+          msgColor = Colors.redAccent;
         _loginResponse = res["message"];
+        hasClicked = false;
+      });
+
+     }
+    } else {
+      //print(response);
+     // var res = jsonDecode(response.body);
+      
+      setState(() {
+        msgColor = Colors.redAccent;
+        _loginResponse = "Failed: An issue occoured";
         hasClicked = false;
       });
     }
+
+
+ 
 
   }
 
@@ -580,12 +652,20 @@ class _EditPageState extends State<EditPage> {
             children: new List<Widget>.generate(4, (index) {
               File file;
               isUploaded.add(false);
-              imagesList.add(file);
+              //imagesList.add(file);
               return InkWell(
                 onTap: () {
                   setState(() {
-                    getImage(index);
+                   
                   });
+                 // print(networkImage.length+index);
+                  if(networkImage.length > index){
+                     getImage(index,networkImage[index]);
+
+                  }else{
+                    getImage(index,null);
+
+                  }
 
                   /// print(index);
                 },
@@ -614,7 +694,14 @@ class _EditPageState extends State<EditPage> {
                                               height: 250,
                                             ):
                                             networkImage.length > index?
-                                      Image.network(networkImage[0])
+                                             CachedNetworkImage(
+                                               fit: BoxFit.fill,
+                                               width: 240,
+                                              height: 250,
+                                      //////////////IMAGE
+                                     imageUrl: networkImage[index],
+                                    )
+                                  
                                       
                                           : Image.asset("assets/images/image-icon.png")),
                                 ),
@@ -688,10 +775,21 @@ class _EditPageState extends State<EditPage> {
                 );
               }).toList(),
               onChanged: (value) {
+                var mainValue;
+                if(value == "For Sale"){
+                  mainValue = "sale";
+                  
+                
+
+                }else{
+                    mainValue = "rent";
+
+                }
                 setState(() {
-                  print(value);
+                   
+                  print(mainValue);
                   selectedValue2 = value;
-                  formValues[key] = value;
+                  formValues[key] = mainValue;
                 });
               },
             ),
@@ -747,7 +845,7 @@ class _EditPageState extends State<EditPage> {
     "Bayelsa",
     "Benue",
     "Borno",
-    "Cross River",
+    "Cross river",
     "Delta",
     "Ebonyi",
     "Edo",

@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Geo Home',
+      title: 'GeoHomes',
       theme: ThemeData(
         primaryColor: Colors.green,
       
@@ -98,6 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
       userModel.setPhotoUrl(res['picture']);
       userModel.setPassword(_password);
       userModel.setCustomerName(res['customername']);
+       userModel.setPhone(res['telephone']);
 
 
       Navigator.of(context).push(MaterialPageRoute(builder: (BuilderContext)=>MainPage()));
@@ -149,15 +150,15 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            margin: EdgeInsets.symmetric(horizontal:20),
-  decoration: BoxDecoration(
-    gradient: LinearGradient(
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
-      colors: [Colors.purple, Colors.blue]),
+  //           margin: EdgeInsets.symmetric(horizontal:20),
+  // decoration: BoxDecoration(
+  //   gradient: LinearGradient(
+  //     begin: Alignment.centerLeft,
+  //     end: Alignment.centerRight,
+  //     colors: [Colors.purple, Colors.blue]),
       
-  ),
-  child:  Image.asset("assets/images/logo.jpg", width: width-2),
+  // ),
+  child:  Image.asset(appLogo, width: width-2),
 )
 
          

@@ -13,338 +13,462 @@ import 'package:url_launcher/url_launcher.dart';
 import 'HomePage.dart';
 import 'package:shimmer/shimmer.dart';
 
-class UserProperties extends StatefulWidget{
+import 'Profile.dart';
+import 'SubmitPropertyTab.dart';
+
+class UserProperties extends StatefulWidget {
   @override
   _UserProperties createState() => _UserProperties();
-
-
 }
 
-class _UserProperties extends State<UserProperties>{
+class _UserProperties extends State<UserProperties> {
   bool _enabled = true;
   Future fetchProperties() async {
     String url =
-        "http://geohomesgroup.com/admin/process/list?pageType=m-properties&mobile=1&user_id="+userModel.getUserId();
+        "http://geohomesgroup.com/admin/process/list?pageType=m-properties&mobile=1&user_id=" +
+            userModel.getUserId() +
+            "&condition=created_by," +
+            userModel.getUserId();
     var response = await http.get(url);
     if (response.statusCode == 200) {
-     // print(response.body);
+      // print(response.body);
 
       return jsonDecode(response.body);
     }
   }
+
   final numberFormat = new NumberFormat("#,##0.00", "en_US");
- List selectedItemsIds = [];
+  List selectedItemsIds = [];
+  //////////////////////////////
+  loadDetails() async {
+    var url = "http://geohomesgroup.com/admin/process/loadform?pageType" +
+        "=members_&mobile=1&user_id=1&id=" +
+        userModel.getUserId();
 
-  @override
-  Widget build(BuildContext context){
-     var width = MediaQuery.of(context).size.width;
-    var height =  MediaQuery.of(context).size.height;
-    return Scaffold(
-     // bottomNavigationBar: bottomAppBarTheme(),
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: mainColor,
-        centerTitle: true, 
-        title: selectedItemsIds.length > 0?
-        Row(children: [
-          Expanded(child:  selectedItemsIds.length > 1?
-          Text("${selectedItemsIds.length} items selected"):
-          Text("${selectedItemsIds.length} item selected"),),
-          InkWell(child: Icon(Icons.delete),
-          onTap: (){
-            print(selectedItemsIds);
-            String ids = "";
-            for(var i = 0; i < selectedItemsIds.length; i++){
-             if(i == selectedItemsIds.length - 1){
-                ids += selectedItemsIds[i];
-             }else{
-                ids += selectedItemsIds[i]+",";
-             }
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      print(userModel.getUserId());
 
-
-            }
-            
-            showAlertDialog(context,selectedItemsIds.length.toString(),ids);
-            setState(() {
-              
-            });
-           
-          },
-          )
-        ],)
-        :Text("My Properties")
-        ),
-
-        body: Container(
-          width: width,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-               
-                FutureBuilder(
-                  future: fetchProperties(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      print(
-                          "Error fecting json...." + snapshot.error.toString());
-                    }
-                    if (snapshot.data.toString() == "[]") {
-                      return Center(
-                        child: Column(
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(top: 100),
-                            ),
-                            Center(
-                              child: Text(
-                                "No Data",
-                                style: TextStyle(fontSize: 25),
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    }
-
-                     if (snapshot.hasData) {
-                     if (snapshot.data['total'] == 0) {
-                        return  noResultWidget();
-                      
-                    }
-                    // print(snapshot.data['total']);
-                   // return ListOfProperties(list: snapshot.data);
-                  }
-
-                    if (snapshot.hasData) {
-                     // print(snapshot.data);
-                      return ListOfPropertiesSingle( snapshot.data);
-                    } else {
-                      return Container(
-                        child: Column(
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(top: 100),
-                            ),
-                           // shimmer(),
-                            
-                            CircularProgressIndicator(
-                              backgroundColor: Colors.white,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 10),
-                            ),
-                            Text(
-                              "Loading Data...",
-                              style: TextStyle(color: Colors.white),
-                            )
-                          ],
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-
-
-    );
+      print("==" + response.body);
+    }
   }
 
-  shimmer(){
-    return Container(
-        
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            Expanded(
-              child: Shimmer.fromColors(
-                baseColor: Colors.grey[300],
-                highlightColor: Colors.grey[100],
-                enabled: _enabled,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemBuilder: (_, __) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 48.0,
-                          height: 48.0,
-                          color: Colors.white,
+  @override
+  Widget build(BuildContext context) {
+    var width = MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: mainColor,
+        child: Icon(Icons.add, color: Colors.white),
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => SubmitPropertiesTab()));
+        },
+      ),
+      // bottomNavigationBar: bottomAppBarTheme(),
+      appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: mainColor,
+          centerTitle: true,
+          title: selectedItemsIds.length > 0
+              ? Row(
+                  children: [
+                    Expanded(
+                      child: selectedItemsIds.length > 1
+                          ? Text("${selectedItemsIds.length} items selected")
+                          : Text("${selectedItemsIds.length} item selected"),
+                    ),
+                    InkWell(
+                      child: Icon(Icons.delete),
+                      onTap: () {
+                        print(selectedItemsIds);
+                        String ids = "";
+                        for (var i = 0; i < selectedItemsIds.length; i++) {
+                          if (i == selectedItemsIds.length - 1) {
+                            ids += selectedItemsIds[i];
+                          } else {
+                            ids += selectedItemsIds[i] + ",";
+                          }
+                        }
+
+                        showAlertDialog(
+                            context, selectedItemsIds.length.toString(), ids);
+                        setState(() {});
+                      },
+                    )
+                  ],
+                )
+              : Text("My Properties")),
+
+      body: Container(
+        width: width,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                child: Card(
+                  // width: MediaQuery.of(context).size.width,
+                  //height: 150,
+                  color: whiteColor,
+                  elevation: 5,
+                  child: Column(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(top: 10, right: 10),
+                        alignment: Alignment.topRight,
+                        child: InkWell(
+                          child: Icon(
+                            Icons.edit,
+                            color: Colors.green,
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        Profile()));
+                          },
                         ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                        ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Container(
-                                width: double.infinity,
-                                height: 8.0,
-                                color: Colors.white,
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 2.0),
-                              ),
-                              Container(
-                                width: double.infinity,
-                                height: 8.0,
-                                color: Colors.white,
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 2.0),
-                              ),
-                              Container(
-                                width: 40.0,
-                                height: 8.0,
-                                color: Colors.white,
+                      ),
+                      Container(
+                        //alignment: Alignment.center,
+                        child: InkWell(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CircleAvatar(
+                                radius: 55,
+                                child: ClipOval(
+                                    // borderRadius: BorderRadius.circular(8.0),
+
+                                    child: Image.network(
+                                  userModel.getPhotoUrl(),
+                                  width: 100,
+                                )),
                               ),
                             ],
                           ),
-                        )
-                      ],
-                    ),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        Profile()));
+
+                            // print("Camera");
+                            //getImage();
+                          },
+                        ),
+                      ),
+                      Container(
+                          margin: EdgeInsets.only(top: 10, bottom: 20),
+                          child: Text(
+                            userModel.customername,
+                            style: TextStyle(fontSize: 20),
+                          )),
+                      // Container(child: Text("ff"),),
+                    ],
                   ),
-                  itemCount: 6,
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: FlatButton(
-                  onPressed: () {
-                    setState(() {
-                      _enabled = !_enabled;
-                    });
-                  },
-                  child: Text(
-                    _enabled ? 'Stop' : 'Play',
-                    style: Theme.of(context).textTheme.button.copyWith(
-                        fontSize: 18.0,
-                        color: _enabled ? Colors.redAccent : Colors.green),
-                  )),
-            )
-          ],
+              FutureBuilder(
+                future: fetchProperties(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    print("Error fecting json...." + snapshot.error.toString());
+                  }
+                  if (snapshot.data.toString() == "[]") {
+                    return Center(
+                      child: Column(
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(top: 100),
+                          ),
+                          Center(
+                            child: Text(
+                              "No Data",
+                              style: TextStyle(fontSize: 25),
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  }
+
+                  if (snapshot.hasData) {
+                    if (snapshot.data['total'] == 0) {
+                      return noResultWidget();
+                    }
+                    // print(snapshot.data['total']);
+                    // return ListOfProperties(list: snapshot.data);
+                  }
+
+                  if (snapshot.hasData) {
+                    // print(snapshot.data);
+                    return ListOfPropertiesSingle(snapshot.data);
+                  } else {
+                    return Container(
+                      child: Column(
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(top: 100),
+                          ),
+                          // shimmer(),
+
+                          CircularProgressIndicator(
+                            backgroundColor: Colors.white,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 10),
+                          ),
+                          Text(
+                            "Loading Data...",
+                            style: TextStyle(color: Colors.white),
+                          )
+                        ],
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
         ),
-      );
+      ),
+    );
   }
 
-  Widget ListOfPropertiesSingle(Map<String, dynamic> list){
+  shimmer() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          Expanded(
+            child: Shimmer.fromColors(
+              baseColor: Colors.grey[300],
+              highlightColor: Colors.grey[100],
+              enabled: _enabled,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemBuilder: (_, __) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 48.0,
+                        height: 48.0,
+                        color: Colors.white,
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Container(
+                              width: double.infinity,
+                              height: 8.0,
+                              color: Colors.white,
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 2.0),
+                            ),
+                            Container(
+                              width: double.infinity,
+                              height: 8.0,
+                              color: Colors.white,
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 2.0),
+                            ),
+                            Container(
+                              width: 40.0,
+                              height: 8.0,
+                              color: Colors.white,
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                itemCount: 6,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: FlatButton(
+                onPressed: () {
+                  setState(() {
+                    _enabled = !_enabled;
+                  });
+                },
+                child: Text(
+                  _enabled ? 'Stop' : 'Play',
+                  style: Theme.of(context).textTheme.button.copyWith(
+                      fontSize: 18.0,
+                      color: _enabled ? Colors.redAccent : Colors.green),
+                )),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget ListOfPropertiesSingle(Map<String, dynamic> list) {
     var width = MediaQuery.of(context).size.width;
-    var height =  MediaQuery.of(context).size.height;
+    var height = MediaQuery.of(context).size.height;
     return Container(
         width: MediaQuery.of(context).size.width,
-       // height: hieght * 1.3,
-        
+        // height: hieght * 1.3,
+
         padding: EdgeInsets.only(left: 5, right: 5, top: 5),
         child: RefreshIndicator(
           onRefresh: () {},
           child: ListView.builder(
-             physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-              itemCount:
-                 list['row'] == null ? 0 : list['row'].length,
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: list['row'] == null ? 0 : list['row'].length,
               itemBuilder: (context, i) {
                 final List images = json.decode(list['row'][i]['c'][6]);
                 // print("============"+t[0].toString());
+                var id,
+                    type2,
+                    title,
+                    price,
+                    category,
+                    company,
+                    status,
+                    postDate,
+                    type,
+                    location,
+                    companyName,
+                    phoneNumber,
+                    priceWithCommer;
                 var row = list['row'];
-                var id = list['row'][i]['i'];
-                var title = row[i]['c'][0];
+                //  var id = list['row'][i]['i'];
 
-                var price = row[i]['c'][1];
-                var category = row[i]['c'][2];
-                var company = row[i]['c'][3];
-                var status = row[i]['c'][4];
-                var postDate = row[i]['c'][5];
-                var type = row[i]['c'][7];
-                var location = row[i]['c'][8];
-                var priceWithCommer = numberFormat.format(json.decode(price));
-                var phoneNumber = "08012345678";
-              // print( "${numberFormat.format(price)}");
-              
+                title = checkForNull(row[i]['c'][0]);
+                price = checkForNull(row[i]['c'][1]);
+                category = checkForNull(row[i]['c'][2]);
+                company = checkForNull(row[i]['c'][3]);
+                status = checkForNull(row[i]['c'][4]);
+                postDate = checkForNull(row[i]['c'][5]);
+                type = checkForNull(row[i]['c'][7]);
+                location = checkForNull(row[i]['c'][8]);
+                companyName = checkForNull(row[i]['c'][9]);
+                phoneNumber = checkForNull(row[i]['c'][10]);
+                if (price.length > 2) {
+                  priceWithCommer = numberFormat.format(json.decode(price));
+                } else {
+                  priceWithCommer = price;
+                }
+
+                if (type.length > 2) {
+                  type2 = type.replaceAll(type[0], type[0].toUpperCase());
+                } else {
+                  type2 = type;
+                }
+                // var title = row[i]['c'][0];
+
+                // var price = row[i]['c'][1];
+                // var category = row[i]['c'][2];
+                // var company = row[i]['c'][3];
+                // var status = row[i]['c'][4];
+                // var postDate = row[i]['c'][5];
+                // var type = row[i]['c'][7];
+                // var location = row[i]['c'][8];
+                // var priceWithCommer = numberFormat.format(json.decode(price));
+                // var phoneNumber = "08012345678";
+                // print( "${numberFormat.format(price)}");
+                //print(status);
+                //   var statusName = "";
+
+                //   switch(status){
+                //     case 0:
+                //     statusName = "In Audit";
+                //     break;
+                //     case 1:
+                //     statusName = "Active";
+                //     break;
+                //     case 2:
+                //     statusName = "Suspended";
+                //     break;
+                //      case 3:
+                //     statusName = "Rejected";
+                //     break;
+                //      case 4:
+                //     statusName = "Sold";
+                //     break;
+                // }
 
                 return InkWell(
                   onTap: () {
-                    if(selectedItemsIds.length > 0){
-                      if(selectedItemsIds.contains(id)){
-                    selectedItemsIds.remove(id);
-
-
-                  }else{
-                      selectedItemsIds.add(id);
-                  }
-
-              }else{
-
-                   var details = {
-                      "id": id,
-                      "title": title,
-                      "price": priceWithCommer,
-                      "category": category,
-                      "company": company,
-                      "status": status,
-                      "postDate": postDate,
-                      "type": type,
-                      "location": location
-                    };
-                    ////////////////////////
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext) =>
-                                EditPage(productDetails: details, images: images,isEdit: true,)));
-                    //////////////////////////////////////
-                print("edit2");
-
-
-
-
-              }
-              setState(() {
-                
-              });
-
-                   
+                    if (selectedItemsIds.length > 0) {
+                      if (selectedItemsIds.contains(id)) {
+                        selectedItemsIds.remove(id);
+                      } else {
+                        selectedItemsIds.add(id);
+                      }
+                    } else {
+                      var details = {
+                        "id": id,
+                        "title": title,
+                        "price": priceWithCommer,
+                        "category": category,
+                        "company": company,
+                        "status": status,
+                        "postDate": postDate,
+                        "type": type,
+                        "location": location
+                      };
+                      //////////////////////
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext) => EditPage(
+                                    productDetails: details,
+                                    images: images,
+                                    isEdit: true,
+                                  )));
+                      ////////////////////////////////////
+                      print("edit2");
+                    }
+                    setState(() {});
                   },
-                  onLongPress: (){
-                  if(selectedItemsIds.contains(id)){
-                    selectedItemsIds.remove(id);
-
-
-                  }else{
+                  onLongPress: () {
+                    if (selectedItemsIds.contains(id)) {
+                      selectedItemsIds.remove(id);
+                    } else {
                       selectedItemsIds.add(id);
-                  }
-                    setState(() {
-                      
-                    });
+                    }
+                    setState(() {});
                     print("long press");
                   },
                   child: Card(
-                     color: selectedItemsIds.contains(id) ?Colors.greenAccent[100] : whiteColor,
+                    color: selectedItemsIds.contains(id)
+                        ? Colors.greenAccent[100]
+                        : whiteColor,
                     elevation: 5,
                     child: Container(
-                     
                       width: MediaQuery.of(context).size.width,
                       height: 150,
                       child: Column(
-                        
                         children: [
-                          
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              
-
-                            Container(
-                             
-                              width: width/3,
+                              Container(
+                                width: width / 3,
                                 height: 120,
-                              child: FittedBox(
+                                child: FittedBox(
                                   fit: BoxFit.fill,
                                   child: CachedNetworkImage(
                                     //////////////IMAGE
@@ -363,90 +487,106 @@ class _UserProperties extends State<UserProperties>{
                                     errorWidget: (context, url, error) =>
                                         Icon(Icons.error),
                                   ),
-                                ),),
-
-                                Expanded(child: Container(
-                                   margin: EdgeInsets.symmetric(vertical:10,horizontal:10),
-                                  
+                                ),
+                              ),
+                              Expanded(
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 10),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                 Container(
-                                       ///margin: EdgeInsets.only(top:15),
-                                   
-                                    child: Row(
-                                      children: [
-                                       
-                                        Expanded(child: Text(title)),
-                                        selectedItemsIds.contains(id)?
-                                         Icon(Icons.check_circle_outlined,color: mainColor,)
-                                         :Container(),
-                                      ],
-                                    ),),
+                                      Container(
+                                        ///margin: EdgeInsets.only(top:15),
 
-
-                                     Container(
-                                       margin: EdgeInsets.only(top:15),
-                                   
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.place,color: mainColor,),
-                                        Expanded(child: Text(location)),
-                                      ],
-                                    ),),
-
-
-                                    Container(
-                                       margin: EdgeInsets.only(top:5),
-                                   
-                                    child: Row(
-                                      children: [
-                                         Expanded(child: Text("₦ "+priceWithCommer,style: TextStyle(color: mainColor),)),
-                                        InkWell
-                                        (
-                                          onTap: (){
-
-                                             ///////////////////////////////////DETAILS PAGES////////////
-
-                    var details = {
-                      "id": id,
-                      "title": title,
-                      "price": priceWithCommer,
-                      "category": category,
-                      "company": company,
-                      "status": status,
-                      "postDate": postDate,
-                      "type": type,
-                      "location": location
-                    };
-                    ////////////////////////
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext) =>
-                                ProductDetails(details, images)));
-                    //////////////////////////////////////
-                                            print("EYE CLICK");
-                                          },
-                                          
-                                          child: Card(
-                                          shape: StadiumBorder(),
-                                          
-                                          color: Colors.greenAccent[50],
-                                          child: Container(
-                                            padding: EdgeInsets.all(3),
-                                            child: Icon(Icons.remove_red_eye,color: mainColor,)))
+                                        child: Row(
+                                          children: [
+                                            Expanded(child: Text(title)),
+                                            selectedItemsIds.contains(id)
+                                                ? Icon(
+                                                    Icons.check_circle_outlined,
+                                                    color: mainColor,
+                                                  )
+                                                : Container(),
+                                          ],
                                         ),
-                                       
-                                      ],
-                                    ),),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(top: 15),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.place,
+                                              color: mainColor,
+                                            ),
+                                            Expanded(child: Text(location)),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(top: 5),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                                child: Text(
+                                              "₦ " + priceWithCommer,
+                                              style:
+                                                  TextStyle(color: mainColor),
+                                            )),
+                                            InkWell(
+                                                onTap: () {
+                                                  ///////////////////////////////////DETAILS PAGES////////////
 
-                                    
-
-                                ],),),)
-                            
-                          ],),
+                                                  var details = {
+                                                    "id": id,
+                                                    "title": title,
+                                                    "price": priceWithCommer,
+                                                    "category": category,
+                                                    "company": company,
+                                                    "status": status,
+                                                    "postDate": postDate,
+                                                    "type": type,
+                                                    "location": location
+                                                  };
+                                                  ////////////////////////
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder:
+                                                              (BuildContext) =>
+                                                                  ProductDetails(
+                                                                      details,
+                                                                      images)));
+                                                  //////////////////////////////////////
+                                                  print("EYE CLICK");
+                                                },
+                                                child: Card(
+                                                    shape: StadiumBorder(),
+                                                    color:
+                                                        Colors.greenAccent[50],
+                                                    child: Container(
+                                                        padding:
+                                                            EdgeInsets.all(3),
+                                                        child: Icon(
+                                                          Icons.remove_red_eye,
+                                                          color: mainColor,
+                                                        )))),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                          child: Text(
+                                        status,
+                                        style: TextStyle(color: Colors.brown),
+                                      ))
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -454,67 +594,51 @@ class _UserProperties extends State<UserProperties>{
                 );
               }),
         ));
-   
-
   }
 
-  showAlertDialog(BuildContext context,String length,String ids) {
+  showAlertDialog(BuildContext context, String length, String ids) {
+    // set up the buttons
+    Widget cancelButton = FlatButton(
+      child: Text("Cancel"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+    Widget continueButton = FlatButton(
+      child: Text("Continue"),
+      onPressed: () {
+        print(ids);
+        Navigator.of(context).pop();
+        selectedItemsIds.clear();
+        setState(() {});
+      },
+    );
 
-  // set up the buttons
-  Widget cancelButton = FlatButton(
-    child: Text("Cancel"),
-    onPressed:  () {
-      Navigator.of(context).pop();
-    },
-  );
-  Widget continueButton = FlatButton(
-    child: Text("Continue"),
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Delete"),
+      content: Text("You are about to delete " + length.toString()),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
 
-    onPressed:  () {
-print(ids);
-Navigator.of(context).pop();
- selectedItemsIds.clear();
- setState(() {
-   
- });
-
-    },
-  );
-
-  // set up the AlertDialog
-  AlertDialog alert = AlertDialog(
-    title: Text("Delete"),
-    content: Text("You are about to delete "+length.toString()),
-    actions: [
-      cancelButton,
-      continueButton,
-    ],
-  );
-
-  // show the dialog
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      
-      return alert;
-    },
-  );
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
 }
-
-}
-
-
 
 //////////////////////////////////////////////
 
-
-
 ///////////////////////////ABANDONED CLASSSS///////////////////////////////
 
-
-
 ////////////////////////////////////////
-
 
 class ListOfPropertiesSingle extends StatefulWidget {
   Map<String, dynamic> list;
@@ -528,9 +652,8 @@ class _ListOfPropertiesSingleState extends State<ListOfPropertiesSingle> {
 // final List<PortasAbertas> portasAbertasList =
 //      t.map((item) => PortasAbertas.fromJson(item)).toList();
 // return portasAbertasList;
- final numberFormat = new NumberFormat("#,##0.00", "en_US");
- List selectedItemsIds = [];
-
+  final numberFormat = new NumberFormat("#,##0.00", "en_US");
+  List selectedItemsIds = [];
 
   @override
   Widget build(BuildContext context) {
@@ -539,14 +662,14 @@ class _ListOfPropertiesSingleState extends State<ListOfPropertiesSingle> {
 
     return Container(
         width: MediaQuery.of(context).size.width,
-       // height: hieght * 1.3,
-        
+        // height: hieght * 1.3,
+
         padding: EdgeInsets.only(left: 5, right: 5, top: 5),
         child: RefreshIndicator(
           onRefresh: () {},
           child: ListView.builder(
-             physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
               itemCount:
                   widget.list['row'] == null ? 0 : widget.list['row'].length,
               itemBuilder: (context, i) {
@@ -565,67 +688,49 @@ class _ListOfPropertiesSingleState extends State<ListOfPropertiesSingle> {
                 var location = row[i]['c'][8];
                 var priceWithCommer = numberFormat.format(json.decode(price));
                 var phoneNumber = "08012345678";
-              // print( "${numberFormat.format(price)}");
-              
+                // print( "${numberFormat.format(price)}");
 
                 return InkWell(
                   onTap: () {
-                    if(selectedItemsIds.length > 0){
-                      if(selectedItemsIds.contains(i)){
-                    selectedItemsIds.remove(i);
-
-
-                  }else{
-                      selectedItemsIds.add(i);
-                  }
-
-              }else{
-                
-                 
-                print("edit");
-                
-                
-              }
-              setState(() {
-                
-              });
-
-                   
+                    if (selectedItemsIds.length > 0) {
+                      if (selectedItemsIds.contains(i)) {
+                        selectedItemsIds.remove(i);
+                      } else {
+                        selectedItemsIds.add(i);
+                      }
+                    } else {
+                      print("edit");
+                    }
+                    setState(() {});
                   },
-                  onLongPress: (){
-                  if(selectedItemsIds.contains(i)){
-                    selectedItemsIds.remove(i);
-
-
-                  }else{
+                  onLongPress: () {
+                    if (selectedItemsIds.contains(i)) {
+                      selectedItemsIds.remove(i);
+                    } else {
                       selectedItemsIds.add(i);
-                  }
-                    setState(() {
-                      
-                    });
+                    }
+                    setState(() {});
                     print("long press");
                   },
                   child: Card(
                     elevation: 5,
                     child: Container(
-                     
                       width: MediaQuery.of(context).size.width,
                       height: 150,
                       child: Column(
-                        
                         children: [
-                          selectedItemsIds.length > 0 && i == 0?
-                          Container(child: Text(""),)
-                          :Container(),
+                          selectedItemsIds.length > 0 && i == 0
+                              ? Container(
+                                  child: Text(""),
+                                )
+                              : Container(),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              
-
-                            Container(
-                              width: width/3,
+                              Container(
+                                width: width / 3,
                                 height: 120,
-                              child: FittedBox(
+                                child: FittedBox(
                                   fit: BoxFit.fill,
                                   child: CachedNetworkImage(
                                     //////////////IMAGE
@@ -644,88 +749,99 @@ class _ListOfPropertiesSingleState extends State<ListOfPropertiesSingle> {
                                     errorWidget: (context, url, error) =>
                                         Icon(Icons.error),
                                   ),
-                                ),),
-
-                                Expanded(child: Container(
-                                   margin: EdgeInsets.symmetric(vertical:10,horizontal:10),
-                                  
+                                ),
+                              ),
+                              Expanded(
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 10),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                 Container(
-                                       ///margin: EdgeInsets.only(top:15),
-                                   
-                                    child: Row(
-                                      children: [
-                                       
-                                        Expanded(child: Text(title)),
-                                         Icon(Icons.check_circle_outlined,color: mainColor,),
-                                      ],
-                                    ),),
+                                      Container(
+                                        ///margin: EdgeInsets.only(top:15),
 
-
-                                     Container(
-                                       margin: EdgeInsets.only(top:15),
-                                   
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.place,color: mainColor,),
-                                        Expanded(child: Text(location)),
-                                      ],
-                                    ),),
-
-
-                                    Container(
-                                       margin: EdgeInsets.only(top:5),
-                                   
-                                    child: Row(
-                                      children: [
-                                         Expanded(child: Text("₦ "+priceWithCommer,style: TextStyle(color: mainColor),)),
-                                        InkWell
-                                        (
-                                          onTap: (){
-
-                                             ///////////////////////////////////DETAILS PAGES////////////
-
-                    var details = {
-                      "id": id,
-                      "title": title,
-                      "price": priceWithCommer,
-                      "category": category,
-                      "company": company,
-                      "status": status,
-                      "postDate": postDate,
-                      "type": type,
-                      "location": location
-                    };
-                    ////////////////////////
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext) =>
-                                ProductDetails(details, images)));
-                    //////////////////////////////////////
-                                            print("EYE CLICK");
-                                          },
-                                          
-                                          child: Card(
-                                          shape: StadiumBorder(),
-                                          
-                                          color: Colors.greenAccent[50],
-                                          child: Container(
-                                            padding: EdgeInsets.all(3),
-                                            child: Icon(Icons.remove_red_eye,color: mainColor,)))
+                                        child: Row(
+                                          children: [
+                                            Expanded(child: Text(title)),
+                                            Icon(
+                                              Icons.check_circle_outlined,
+                                              color: mainColor,
+                                            ),
+                                          ],
                                         ),
-                                       
-                                      ],
-                                    ),),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(top: 15),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.place,
+                                              color: mainColor,
+                                            ),
+                                            Expanded(child: Text(location)),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(top: 5),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                                child: Text(
+                                              "₦ " + priceWithCommer,
+                                              style:
+                                                  TextStyle(color: mainColor),
+                                            )),
+                                            InkWell(
+                                                onTap: () {
+                                                  ///////////////////////////////////DETAILS PAGES////////////
 
-                                    
-
-                                ],),),)
-                            
-                          ],),
+                                                  var details = {
+                                                    "id": id,
+                                                    "title": title,
+                                                    "price": priceWithCommer,
+                                                    "category": category,
+                                                    "company": company,
+                                                    "status": status,
+                                                    "postDate": postDate,
+                                                    "type": type,
+                                                    "location": location
+                                                  };
+                                                  ////////////////////////
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder:
+                                                              (BuildContext) =>
+                                                                  ProductDetails(
+                                                                      details,
+                                                                      images)));
+                                                  //////////////////////////////////////
+                                                  print("EYE CLICK");
+                                                },
+                                                child: Card(
+                                                    shape: StadiumBorder(),
+                                                    color:
+                                                        Colors.greenAccent[50],
+                                                    child: Container(
+                                                        padding:
+                                                            EdgeInsets.all(3),
+                                                        child: Icon(
+                                                          Icons.remove_red_eye,
+                                                          color: mainColor,
+                                                        )))),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -734,6 +850,4 @@ class _ListOfPropertiesSingleState extends State<ListOfPropertiesSingle> {
               }),
         ));
   }
-
-  
 }

@@ -81,7 +81,7 @@ class _RegisterState extends State<Register> {
             children: [
               Container(
                 child: Image.asset(
-                  "assets/images/logo.jpg",
+                  appLogo,
                   width:200,
                 ),
               ),
